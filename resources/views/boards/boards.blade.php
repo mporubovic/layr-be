@@ -9,6 +9,7 @@
 <h2>Create a new board</h2>
 <form method="POST" action="/boards">
     @csrf <!-- Cross site request forgery -->
+    
 
     <label class="label" for="title">Title </label>
     <input class="input" type="text" name="title" id="title">
