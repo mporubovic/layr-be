@@ -1,4 +1,4 @@
-<h2>User boards</h2>
+<h2>Custom User boards</h2>
 
 @foreach ($boards as $board)
 
