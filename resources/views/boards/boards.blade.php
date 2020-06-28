@@ -1,8 +1,8 @@
-<h2>User boards</h2>
+<h2>User boards by updated_at, desc</h2>
 
 @foreach ($boards as $board)
 
-    <h3><a href="/boards/{{ $board->id}}">{{ $board->title }}</a></h3>
+    <h3><a href="{{ route('boards.show', $board) }}">{{ $board->title }}</a></h3>
 
 @endforeach
 
@@ -12,6 +12,9 @@
     
 
     <label class="label" for="title">Title </label>
-    <input class="input" type="text" name="title" id="title">
+    <input class="input" type="text" name="title" id="title" required>
+    <input class="input" type="hidden" name="owner" id="owner" value="mawej1">
     <button class="button" type="submit">Create</button>
 </form>
+
+<h2>Update a board</h2>

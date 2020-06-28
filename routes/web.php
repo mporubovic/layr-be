@@ -15,7 +15,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', 'BoardController@index');
 
-Route::get('/boards', 'BoardController@index');
+Route::get('/boards', 'BoardController@index')->name('boards.index');
 Route::post('/boards', 'BoardController@store');
 
-Route::get('/boards/{id}', 'BoardController@show');
+Route::get('/boards/{board}', 'BoardController@show')->name('boards.show');
+
+Route::get('/boards/{board}/edit', 'BoardController@edit');
+Route::put('/boards/{board}', 'BoardController@update');

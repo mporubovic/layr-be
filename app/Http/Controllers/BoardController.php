@@ -14,10 +14,24 @@ class BoardController extends Controller
      */
     public function index()
     {
-        $boards = Board::latest()->get();
+        
+        $boards = Board::orderBy('updated_at', 'desc')->get();
 
-        return view('boards.boards', ['boards' => $boards]);
-        // return view('boards.index', ['boards' => $boards]);
+        // return $boards->all();
+
+        return view('boards.boards', compact('boards'));
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Board  $board
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Board $board)
+    {
+        return view('boards.show', compact('board'));
+        // return view(route('boards.show', $board), $board);
     }
 
     /**
@@ -36,28 +50,21 @@ class BoardController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store()
     {
-        $board = new Board;
-        $board->title = $request->title;
-        $board->owner = 'mawej1';
+    
+        
+        // $board = new Board;
+        // $board->title = request('title');
+        // $board->owner = 'mawej1';
 
-        $board->save();
+        // $board->save();
 
-        return redirect('boards');
+        Board::create($this->validateBoard());
+
+        return redirect(route('boards.index'));
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Board  $board
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        $board = Board::find($id);
-        return view('boards.show', ['board' => $board]);
-    }
 
     /**
      * Show the form for editing the specified resource.
@@ -67,7 +74,8 @@ class BoardController extends Controller
      */
     public function edit(Board $board)
     {
-        //
+
+        return view('boards.edit', compact('board'));
     }
 
     /**
@@ -77,9 +85,16 @@ class BoardController extends Controller
      * @param  \App\Board  $board
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Board $board)
+    public function update(Board $board)
     {
-        //
+
+        $board->update($this->validateBoard());
+
+        // $board->title = request('title');
+        // $board->save();
+
+        // return redirect('boards');
+        return redirect(route('boards.show', $board));
     }
 
     /**
@@ -91,5 +106,12 @@ class BoardController extends Controller
     public function destroy(Board $board)
     {
         //
+    }
+
+    public function validateBoard() {
+        return request()->validate([
+            'title' => 'required',
+            'owner' => 'required'
+        ]);
     }
 }
