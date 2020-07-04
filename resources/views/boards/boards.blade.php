@@ -2,7 +2,7 @@
 
 @foreach ($boards as $board)
 
-    <h3><a href="{{ route('boards.show', $board) }}">{{ $board->title }}</a></h3>
+    <h3><a href="{{ $board->path() }}">{{ $board->title }}</a></h3>
 
 @endforeach
 

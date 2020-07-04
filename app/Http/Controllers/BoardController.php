@@ -94,7 +94,7 @@ class BoardController extends Controller
         // $board->save();
 
         // return redirect('boards');
-        return redirect(route('boards.show', $board));
+        return redirect($board->path());
     }
 
     /**

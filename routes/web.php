@@ -22,3 +22,7 @@ Route::get('/boards/{board}', 'BoardController@show')->name('boards.show');
 
 Route::get('/boards/{board}/edit', 'BoardController@edit');
 Route::put('/boards/{board}', 'BoardController@update');
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
