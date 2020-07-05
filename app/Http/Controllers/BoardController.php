@@ -17,9 +17,9 @@ class BoardController extends Controller
         
         $boards = Board::orderBy('updated_at', 'desc')->get();
 
-        return $boards->all();
+        // return $boards->all();
 
-        // return view('boards.boards', compact('boards'));
+        return view('boards.boards', compact('boards'));
     }
 
     /**

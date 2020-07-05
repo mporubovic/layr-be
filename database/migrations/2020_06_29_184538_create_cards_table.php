@@ -14,12 +14,15 @@ class CreateCardsTable extends Migration
     public function up()
     {
         Schema::create('cards', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('user_id');
-            
-            $table->morphs('viewable');    
+            $table->id();            
             
             $table->text('title');
+            $table->unsignedBigInteger('user_id');
+            
+            $table->integer('content_count');
+            $table->morphs('content');
+            
+            $table->morphs('interpreter');
 
             $table->timestamps();
             
