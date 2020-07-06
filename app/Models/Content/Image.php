@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Content;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -8,6 +8,6 @@ class Image extends Model
 {
     public function card() {
 
-        return $this->morphMany(Card::class, 'viewable');
+        return $this->morphToMany(Card::class, 'viewable');
     }
 }

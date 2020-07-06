@@ -25,9 +25,30 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Relation::morphMap([
-            'image' => 'App\Image',
-            'video' => 'App\Video',
-            'url' => 'App\Url'
+            
+            // CONTENT
+
+            'image' => 'App\Models\Content\Image',
+            'video' => 'App\Models\Content\Video',
+            'url' => 'App\Models\Content\Url',
+
+            //
+            
+            // INTERPRETERS SINGLE
+            
+            'imageviewer' => 'App\Models\Interpreters\ImageViewer',
+            'videoplayer' => 'App\Models\Interpreters\VideoPlayer',
+
+            //
+            
+            // INTERPRETERS MANY
+
+            'list' => 'App\Models\Interpreters\List',
+            'tiles' => 'App\Models\Interpreters\Tiles',
+            'gallery' => 'App\Models\Interpreters\Gallery'
+
+            //
+
         ]);
     }
 }

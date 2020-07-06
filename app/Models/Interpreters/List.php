@@ -1,10 +1,10 @@
 <?php
 
-namespace App;
+namespace App\Models\Interpreters;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Content extends Model
+class List extends Model
 {
     //
 }
