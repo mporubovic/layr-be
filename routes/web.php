@@ -13,7 +13,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', 'BoardController@index');
+// Route::get('/', 'BoardController@index');
+Route::get('/', function () {
+    return \File::get(public_path() . '/indexv.html');
+});
 
 Route::get('/boards', 'BoardController@index')->name('boards.index');
 Route::post('/boards', 'BoardController@store');
