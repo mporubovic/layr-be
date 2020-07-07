@@ -19,7 +19,7 @@ Route::get('/boards', 'BoardController@index')->name('boards.index');
 Route::post('/boards', 'BoardController@store');
 
 // Route::get('/boards/{board}', 'BoardController@show')->name('boards.show');
-Route::get('/boards/{board}', 'BoardController@index');
+Route::get('/apitest', 'BoardController@index');
 
 Route::get('/boards/{board}/edit', 'BoardController@edit');
 Route::put('/boards/{board}', 'BoardController@update');
