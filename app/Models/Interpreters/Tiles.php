@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class Tiles extends Model
 {
-    //
+    protected $table = 'interpreter_tiles';
 }

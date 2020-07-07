@@ -1,13 +1,17 @@
 <?php
 
-namespace App\Content;
+namespace App\Models\Content;
 
 use Illuminate\Database\Eloquent\Model;
 
 class Image extends Model
 {
-    public function card() {
+    public function file() {
 
-        return $this->morphToMany(Card::class, 'viewable');
+
+        // dd($this->morphMany('App\Models\File', 'content', 'content_type')->toSql());
+        return($this->morphMany('App\Models\File', 'content', 'content_type'));
+        // dd($this->morphedByMany('App\Models\File', 'images', 'content', 'content_id', 'content_id')->toSql());
+
     }
 }

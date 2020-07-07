@@ -8,19 +8,19 @@ class Stack extends Model
 {
     public function user() {
 
-        return $this->belongsTo(User::class);
+        return $this->belongsTo('App\User');
 
     }
 
     public function board() {
         
-        return $this->belongsToMany(Board::class);
+        return $this->belongsToMany('App\Models\Board');
 
     }
 
     public function cards() {
         
-        return $this->hasMany(Card::class);
+        return $this->belongsToMany('App\Models\Card');
 
     }
 }

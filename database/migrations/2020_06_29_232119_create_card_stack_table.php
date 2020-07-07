@@ -14,12 +14,15 @@ class CreateCardStackTable extends Migration
     public function up()
     {
         Schema::create('card_stack', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            // $table->id();
 
             $table->unsignedBigInteger('card_id');
             $table->unsignedBigInteger('stack_id');
 
+            $table->unsignedInteger('order');
+            
+            $table->timestamps();
+            
             $table->foreign('card_id')->references('id')->on('cards')->onDelete('cascade');
             $table->foreign('stack_id')->references('id')->on('stacks')->onDelete('cascade');
         });

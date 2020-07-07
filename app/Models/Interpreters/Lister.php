@@ -4,7 +4,7 @@ namespace App\Models\Interpreters;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ImageViewer extends Model
+class Lister extends Model
 {
-    protected $table = 'interpreter_imageviewers';
+    protected $table = 'interpreter_listers';
 }

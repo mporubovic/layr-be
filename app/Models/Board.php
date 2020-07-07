@@ -14,14 +14,14 @@ class Board extends Model
 
     public function user() {
 
-        return $this->belongsTo(User::class);
+        return $this->belongsTo('App\User');
 
 
     }
 
     public function stacks() {
 
-        return $this->hasMany(Stack::class);
+        return $this->belongsToMany('App\Models\Stack');
 
     }
 }

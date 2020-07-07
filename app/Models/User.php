@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -42,19 +42,20 @@ class User extends Authenticatable
     public function cards() {
 
         // return $this->name;
-        return $this->hasMany(Card::class);
+        return $this->hasMany('App\Models\Card');
 
     }
 
     public function stacks() {
 
-        return $this->hasMany(Stack::class);
+        return $this->hasMany('App\Models\Stack');
 
     }    
     
     public function boards() {
 
-        return $this->hasMany(Board::class);
+        return $this->hasMany('App\Models\Board');
         
     }
+
 }

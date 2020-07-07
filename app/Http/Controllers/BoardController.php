@@ -15,11 +15,17 @@ class BoardController extends Controller
     public function index()
     {
         
-        $boards = Board::orderBy('updated_at', 'desc')->get();
+        $user_id = 1;
 
-        // return $boards->all();
+        $user = \App\Models\User::where('id', $user_id);
 
-        return view('boards.boards', compact('boards'));
+        return $user->with('boards.stacks.cards.files.content')->get();
+        
+        // $boards = Board::orderBy('updated_at', 'desc')->get();
+
+        // // return $boards->all();
+
+        // return view('boards.boards', compact('boards'));
     }
 
     /**
