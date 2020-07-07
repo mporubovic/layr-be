@@ -17,4 +17,6 @@
     <button class="button" type="submit">Create</button>
 </form>
 
+
 <h2>Update a board</h2>
+

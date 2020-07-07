@@ -12,17 +12,23 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+// Route::get('/apitest', 'BoardController@index');
+
 
 // Route::get('/', 'BoardController@index');
-Route::get('/', function () {
+
+
+Route::get('/{any}', function () {
     return \File::get(public_path() . '/indexv.html');
-});
+})->where('any', '.*');
+
+
 
 Route::get('/boards', 'BoardController@index')->name('boards.index');
 Route::post('/boards', 'BoardController@store');
 
 // Route::get('/boards/{board}', 'BoardController@show')->name('boards.show');
-Route::get('/apitest', 'BoardController@index');
+
 
 Route::get('/boards/{board}/edit', 'BoardController@edit');
 Route::put('/boards/{board}', 'BoardController@update');
