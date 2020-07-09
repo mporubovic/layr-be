@@ -30,6 +30,10 @@ Route::middleware('auth:sanctum')->get('/boards', function (Request $request) {
     return $request->user()->boards;
 });
 
+Route::middleware('auth:sanctum')->get('/boards', function (Request $request) {
+    return $request->user()->boards;
+});
+
 
 // Route::get('/user', 'UserController@show')->middleware('auth:sanctum');
 

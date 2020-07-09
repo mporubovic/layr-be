@@ -41,10 +41,10 @@ Route::get('/boards/{board}/edit', 'BoardController@edit');
 Route::put('/boards/{board}', 'BoardController@update');
 
 
-// Auth::routes();
+Auth::routes();
 
-Route::post('/login', 'Auth\LoginController@login');
-Route::post('/logout', 'Auth\LoginController@logout');
-Route::post('/register', 'Auth\RegisterController@register');
+// Route::post('/login', 'Auth\LoginController@login');
+// Route::post('/logout', 'Auth\LoginController@logout');
+// Route::post('/register', 'Auth\RegisterController@register');
 
 Route::get('/home', 'HomeController@index')->name('home');
