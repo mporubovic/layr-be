@@ -33,13 +33,13 @@ class BoardController extends Controller
      * @param  \App\Board  $board
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request)
+    public function show($boardId)
     {
         // return view('boards.show', compact('board'));
 
         // return view(route('boards.show', $board), $board);
     
-        return $request->id;
+        return Board::with('stacks.cards.files.content')->find($boardId);
     
     }
 
