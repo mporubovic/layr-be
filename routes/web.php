@@ -41,6 +41,10 @@ Route::get('/boards/{board}/edit', 'BoardController@edit');
 Route::put('/boards/{board}', 'BoardController@update');
 
 
-Auth::routes();
+// Auth::routes();
+
+Route::post('/login', 'LoginController@login');
+Route::post('/logout', 'LoginController@logout');
+Route::post('/register', 'RegiserController@register');
 
 Route::get('/home', 'HomeController@index')->name('home');
