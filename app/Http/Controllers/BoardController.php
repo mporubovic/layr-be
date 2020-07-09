@@ -39,7 +39,7 @@ class BoardController extends Controller
 
         // return view(route('boards.show', $board), $board);
     
-        return $request;
+        return $request->id;
     
     }
 
