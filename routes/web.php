@@ -45,6 +45,6 @@ Route::put('/boards/{board}', 'BoardController@update');
 
 Route::post('/login', 'LoginController@login');
 Route::post('/logout', 'LoginController@logout');
-Route::post('/register', 'RegiserController@register');
+Route::post('/register', 'RegisterController@register');
 
 Route::get('/home', 'HomeController@index')->name('home');
