@@ -20,9 +20,9 @@ use Illuminate\Support\Facades\Route;
 
 // Route::group(['domain' => ''])
 
-Route::get('/{any}', function () {
-    return \File::get(public_path() . '/indexv.html');
-})->where('any', '.*');
+// Route::get('/{any}', function () {
+//     return \File::get(public_path() . '/indexv.html');
+// })->where('any', '.*');
 
 
 
