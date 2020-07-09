@@ -43,8 +43,8 @@ Route::put('/boards/{board}', 'BoardController@update');
 
 // Auth::routes();
 
-Route::post('/login', 'App\Http\Controllers\Auth\LoginController@login');
-Route::post('/logout', 'App\Http\Controllers\Auth\LoginController@logout');
-Route::post('/register', 'App\Http\Controllers\Auth\RegisterController@register');
+Route::post('/login', 'Auth\LoginController@login');
+Route::post('/logout', 'Auth\LoginController@logout');
+Route::post('/register', 'Auth\RegisterController@register');
 
 Route::get('/home', 'HomeController@index')->name('home');
