@@ -33,13 +33,13 @@ class BoardController extends Controller
      * @param  \App\Board  $board
      * @return \Illuminate\Http\Response
      */
-    public function show(Board $board)
+    public function show(Request $request)
     {
         // return view('boards.show', compact('board'));
 
         // return view(route('boards.show', $board), $board);
     
-        return $board->with('stacks');
+        return $request;
     
     }
 
