@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Board;
+use App\Models\Board;
 use Illuminate\Http\Request;
 
 class BoardController extends Controller
