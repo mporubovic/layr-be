@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['layr.sk'],
+    'allowed_origins' => ['http://layr.sk'],
 
     'allowed_origins_patterns' => [],
 
