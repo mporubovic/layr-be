@@ -21,4 +21,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Route::get('/apitest', 'BoardController@index');
 Route::get('/apitest', function () {
     return request()->user()->boards;
-})->middleware('auth:api');
+})->middleware('auth:sanctum');
