@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+// use App\Https\Resources\UserResource;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -24,6 +26,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // })->middleware('auth:sanctum');
 
 
-Route::middleware('auth:sanctum')->get('/apitest', function (Request $request) {
+Route::middleware('auth:sanctum')->get('/boards', function (Request $request) {
     return $request->user()->boards;
 });
+
+
+// Route::get('/user', 'UserController@show')->middleware('auth:sanctum');
+
+// Route::get('/boards', 'BoardController@index')->middleware('auth:sanctum');

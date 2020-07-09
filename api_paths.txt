@@ -1,0 +1,14 @@
+REQUEST    PATH                                   CONTROLLER                  DESCRIPTION                             REQUEST PARAMETERS
+
+GET		/api/boards                         BoardController@index		Board list                          
+GET     /api/stacks                         StackController@index       Stack list
+GET     /api/cards                          CardController@show         Stacks with Cards with content
+
+POST    /api/boards                         BoardController@store       Create new board                        title
+POST    /api/stacks                         StackController@store       Create new stack                        title
+POST    /api/cards                          CardController@store        Create new card                         title, content, interpreter
+
+DELETE  /api/boards                         BoardController@destroy     Delete board                            id
+DELETE  /api/stacks                         StackController@destroy     Delete stack                            id
+DELETE  /api/cards                          CardController@destroy      Delete card                             id
+
