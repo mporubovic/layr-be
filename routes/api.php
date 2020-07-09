@@ -26,13 +26,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // })->middleware('auth:sanctum');
 
 
-Route::middleware('auth:sanctum')->get('/boards', function (Request $request) {
-    return $request->user()->boards;
-});
+// Route::middleware('auth:sanctum')->get('/boards', function (Request $request) {
+//     return $request->user()->boards;
+// });
 
-Route::middleware('auth:sanctum')->get('/boards', function (Request $request) {
-    return $request->user()->boards;
-});
+Route::middleware('auth:sanctum')->get('/boards', 'BoardController@index');
 
 
 // Route::get('/user', 'UserController@show')->middleware('auth:sanctum');

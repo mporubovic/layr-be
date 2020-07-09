@@ -12,14 +12,13 @@ class BoardController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        
-        $user_id = 1;
 
-        $user = \App\Models\User::where('id', $user_id);
+        $user = $request->user();
 
-        return $user->with('boards.stacks.cards.files.content')->get();
+        // return $user->with('boards.stacks.cards.files.content')->get();
+        return $user->boards;
         
         // $boards = Board::orderBy('updated_at', 'desc')->get();
 
