@@ -24,6 +24,10 @@ use Illuminate\Support\Facades\Route;
 //     return \File::get(public_path() . '/indexv.html');
 // })->where('any', '.*');
 
+Route::get('/', function () {
+    return \File::get(public_path() . '/indexv.html');
+});
+
 
 
 
