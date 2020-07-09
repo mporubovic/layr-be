@@ -32,6 +32,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::middleware('auth:sanctum')->get('/boards', 'BoardController@index');
 
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/boards', 'BoardController@index');
+    Route::get('/boards/{id}', 'BoardController@show');
+});
+
 
 // Route::get('/user', 'UserController@show')->middleware('auth:sanctum');
 
