@@ -19,6 +19,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // Route::get('/apitest', 'BoardController@index');
-Route::get('/apitest', function () {
-    return request()->user()->boards;
-})->middleware('auth:sanctum');
+// Route::get('/apitest', function () {
+//     return request()->user()->boards;
+// })->middleware('auth:sanctum');
+
+
+Route::middleware('auth:sanctum')->get('/apitest', function (Request $request) {
+    return $request->user()->boards;
+});
