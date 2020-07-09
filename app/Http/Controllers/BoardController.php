@@ -35,8 +35,12 @@ class BoardController extends Controller
      */
     public function show(Board $board)
     {
-        return view('boards.show', compact('board'));
+        // return view('boards.show', compact('board'));
+
         // return view(route('boards.show', $board), $board);
+    
+        return $board->with('stacks');
+    
     }
 
     /**
