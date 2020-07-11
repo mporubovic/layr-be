@@ -14,7 +14,7 @@ class CreateBoardStackTable extends Migration
     public function up()
     {
         Schema::create('board_stack', function (Blueprint $table) {
-            $table->id();
+            // $table->id();
             $table->primary(['board_id', 'stack_id']);
             
             $table->unsignedBigInteger('board_id');

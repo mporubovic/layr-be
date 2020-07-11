@@ -14,7 +14,7 @@ class CreateBoardUserTable extends Migration
     public function up()
     {
         Schema::create('board_user', function (Blueprint $table) {
-            $table->id();
+            // $table->id();
 
             $table->primary(['board_id', 'user_id']);
 
