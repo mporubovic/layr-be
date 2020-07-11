@@ -45,7 +45,9 @@ class AppServiceProvider extends ServiceProvider
 
             'list' => 'App\Models\Interpreters\List',
             'tiles' => 'App\Models\Interpreters\Tiles',
-            'gallery' => 'App\Models\Interpreters\Gallery'
+            'gallery' => 'App\Models\Interpreters\Gallery',
+
+            'file' => 'App\Models\File',
 
             //
 
