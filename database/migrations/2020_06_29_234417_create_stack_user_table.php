@@ -14,7 +14,7 @@ class CreateStackUserTable extends Migration
     public function up()
     {
         Schema::create('stack_user', function (Blueprint $table) {
-            // $table->id();
+            $table->id();
             $table->primary(['stack_id', 'user_id']);
 
             $table->unsignedBigInteger('stack_id');
