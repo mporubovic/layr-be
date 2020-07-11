@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 class Card extends Model
 {
 
+    protected $fillable = ['title', 'user_id'];
 
     public function user() {
 
@@ -31,7 +32,7 @@ class Card extends Model
 
     }
 
-    public function files () {
+    public function contents () {
 
         // return $this->morphTo();
         // dd(array_search(static::class, Relation::morphMap())); app( ucfirst( $this->content_type )) array_search(static::class, Relation::morphMap())
@@ -84,7 +85,7 @@ class Card extends Model
         // dd($query);
         // return $this->belongsToMany($t, 'card_content', 'card_id', 'content_id')->withPivot('type');
 
-        return $this->hasMany('App\Models\File');
+        return $this->hasMany('App\Models\Content');
 
         // return $this->morphToMany();
 
