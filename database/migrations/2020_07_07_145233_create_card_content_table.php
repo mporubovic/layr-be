@@ -14,7 +14,9 @@ class CreateCardContentTable extends Migration
     public function up()
     {
         Schema::create('card_content', function (Blueprint $table) {
-            $table->id();
+            // $table->id();
+
+            $table->primary(['card_id', 'content_id']);
 
             $table->unsignedBigInteger('card_id');
             
