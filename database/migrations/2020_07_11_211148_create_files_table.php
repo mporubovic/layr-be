@@ -18,7 +18,7 @@ class CreateFilesTable extends Migration
 
             $table->text('extension');
 
-            $table->text('name');
+            $table->text('path');
 
             $table->text('original_name');
 
