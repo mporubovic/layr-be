@@ -14,7 +14,7 @@ class CreateCardUserTable extends Migration
     public function up()
     {
         Schema::create('card_user', function (Blueprint $table) {
-            // $table->id();
+            $table->id();
 
             $table->primary(['card_id', 'user_id']);
             $table->unsignedBigInteger('card_id');
