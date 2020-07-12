@@ -18,7 +18,7 @@ class CreateCardContentTable extends Migration
 
             $table->primary(['card_id', 'content_id']);
 
-            $table->unsignedBigInteger('card_id');
+            $table->unsignedBigInteger('card_id')->references('id')->on('cards')->onDelete('cascade');
             
             $table->text('content_type');
             $table->unsignedBigInteger('content_id');
