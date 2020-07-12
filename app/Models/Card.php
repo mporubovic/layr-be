@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 class Card extends Model
 {
 
-    protected $fillable = ['title', 'user_id'];
+    protected $fillable = ['title', 'user_id', 'interpreter'];
 
     public function user() {
 

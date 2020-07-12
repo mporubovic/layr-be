@@ -33,13 +33,35 @@ class BoardController extends Controller
      * @param  \App\Board  $board
      * @return \Illuminate\Http\Response
      */
-    public function show($boardId)
+    public function show(Request $request)
     {
         // return view('boards.show', compact('board'));
 
         // return view(route('boards.show', $board), $board);
     
-        return Board::with('stacks.cards.files.content')->find($boardId);
+        // return $request->boardId;
+        
+        // $validatedData = $request->validate([
+        //     'boardId' => 'numeric',
+        // ]);
+        
+        
+        $board = Board::find($request->boardId);
+
+        if ($board == null) {
+            $this->boardNotFoundError();
+        }
+
+        $boards = $request->user()->boards;
+        // return response()->json($boards);
+        
+        if ($boards->contains($board)) {
+            return $board->load('stacks.cards.contents.getContent');
+        } else {
+            $this->boardNoPermissionError();
+        }
+        
+
     
     }
 
@@ -59,7 +81,7 @@ class BoardController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store()
+    public function store(Request $request)
     {
     
         
@@ -69,9 +91,23 @@ class BoardController extends Controller
 
         // $board->save();
 
-        Board::create($this->validateBoard());
+        $validatedData = $request->validate([
+            'title' => 'required|min:3',
+        ]);
+        
+        // return [$request->title, $request->user()];
+        
+        $board = Board::create([
+            // 'title' => $request->title,
+            'title' => $request->title,
+            'user_id' => $request->user()->id,
+        ]);
 
-        return redirect(route('boards.index'));
+        // Board::create($this->validateBoard());
+
+        // return redirect(route('boards.index'));
+
+        return $board;
     }
 
 
@@ -81,11 +117,15 @@ class BoardController extends Controller
      * @param  \App\Board  $board
      * @return \Illuminate\Http\Response
      */
-    public function edit(Board $board)
-    {
+    
+    
+     // public function edit(Board $board)
+    // {
 
-        return view('boards.edit', compact('board'));
-    }
+    //     return view('boards.edit', compact('board'));
+    // }
+
+
 
     /**
      * Update the specified resource in storage.
@@ -94,16 +134,36 @@ class BoardController extends Controller
      * @param  \App\Board  $board
      * @return \Illuminate\Http\Response
      */
-    public function update(Board $board)
+    public function update(Request $request)
     {
 
-        $board->update($this->validateBoard());
+        
+        $filteredRequest = $request->except('user_id');
+        
+        $validatedData = $request->validate([
+            'title' => 'required|min:3',
+        ]);
 
-        // $board->title = request('title');
-        // $board->save();
+        
+        $board = Board::find($request->boardId);
 
-        // return redirect('boards');
-        return redirect($board->path());
+        if ($board == null) {
+            $this->boardNotFoundError();
+        }
+        
+        $boards = $request->user()->boards;
+        // return response()->json($boards);
+        
+        if ($boards->contains($board)) {
+            
+            $board->update($request->only('title'));
+
+            return null;
+        
+        } else {
+            $this->boardNoPermissionError();
+        }
+        
     }
 
     /**
@@ -112,9 +172,24 @@ class BoardController extends Controller
      * @param  \App\Board  $board
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Board $board)
+    public function destroy(Request $request)
     {
-        //
+        
+        $board = Board::find($request->boardId);
+
+        if ($board == null) {
+            $this->boardNotFoundError();
+        }
+
+        $boards = $request->user()->boards;
+        // return response()->json($boards);
+        
+        if ($boards->contains($board)) {
+            $board->delete();
+            return null;
+        } else {
+            $this->boardNoPermissionError();
+        }
     }
 
     public function validateBoard() {
@@ -122,5 +197,17 @@ class BoardController extends Controller
             'title' => 'required',
             'owner' => 'required'
         ]);
+    }
+
+    public function boardNotFoundError() {
+
+        abort(403, 'The authenticated user does not have access to the requested board.');
+
+    }
+
+    public function boardNoPermissionError() {
+
+        abort(403, 'The authenticated user does not have access to the requested board.');
+
     }
 }

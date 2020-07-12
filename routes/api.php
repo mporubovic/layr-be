@@ -30,11 +30,27 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user()->boards;
 // });
 
-Route::middleware('auth:sanctum')->get('/boards', 'BoardController@index');
+// Route::middleware('auth:sanctum')->get('/boards', 'BoardController@index');
 
 Route::middleware('auth:sanctum')->group(function () {
+    
+    
     Route::get('/boards', 'BoardController@index');
     Route::get('/boards/{boardId}', 'BoardController@show');
+
+    Route::post('/boards', 'BoardController@store');
+   
+    Route::patch('/boards/{boardId}', 'BoardController@update');
+    
+    Route::delete('/boards/{boardId}', 'BoardController@destroy');
+
+
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+
+    Route::post('/cards', 'CardController@store');
+
 });
 
 

@@ -8,8 +8,7 @@ use Faker\Generator as Faker;
 $factory->define(Card::class, function (Faker $faker) {
     return [
         'title' => $faker->sentence,
-        'user_id' => factory(App\Models\User::class),
-        'interpreter_type' => 'imageviewer',
-        'interpreter_id' => '3',
+        'user_id' => factory(App\User::class),
+        'interpreter' => 'iris',
     ];
 });

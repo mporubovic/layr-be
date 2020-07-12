@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Board extends Model
 {
-    protected $fillable = ['title', 'owner'];
+    protected $fillable = ['title', 'user_id'];
 
     public function path() {
         return route('boards.show', $this);

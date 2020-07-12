@@ -8,7 +8,7 @@ class Content extends Model
 {
     protected $table = 'card_content';
 
-    protected $fillable = ['content_type', 'content_id', 'position'];
+    protected $fillable = ['content_type', 'content_id', 'content_title', 'position'];
 
     public function getContent () {
         
