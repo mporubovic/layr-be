@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Card;
 use App\Models\File;
 use App\Models\Content;
-use App\Models\Content\Video;
-use App\Models\Content\Document;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+
+use App\Http\Resources\Card as CardResource;
+use App\Http\Resources\CardCollection as CardResourceCollection;
+
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class CardController extends Controller
 {
@@ -17,9 +19,15 @@ class CardController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+
+        $cards = $request->user()->cards;
+        // return $cards;
+        $cardResourceCollection = new CardResourceCollection($cards);
+        // return $cardResourceCollection;
+
+        return $cardResourceCollection;
     }
 
     /**
@@ -42,10 +50,10 @@ class CardController extends Controller
     {
         if (!$request->hasFile('file')) {
             $this->cardNoFileUploadedError();
-        }        
-        
+        }
+
         $file = $request->file('file');
-        
+
         if (!$file->isValid()) {
             $this->cardFileUploadError();
         }
@@ -53,27 +61,25 @@ class CardController extends Controller
 
         $user = $request->user();
 
-        
+
         $filePath = $file->store('a');
         $fileOriginalName = $file->getClientOriginalName();
         $fileExtension = $file->extension();
-
-        $publicUrl = env('APP_PUBLIC_URL');
-        $storagePath = '/storage';
-        $filePublicUrl = $publicUrl . $storagePath . '/' . $filePath;
+        $fileSize = $file->getSize();
 
         $fileInDatabase = new File([
             'extension' => $fileExtension,
             'path' => $filePath,
+            'size' => $fileSize,
             'original_name' => $fileOriginalName,
         ]);
 
-        $fileInDatabase->save();      
-        
+        $fileInDatabase->save();
+
         $splitDelimiter = '.';
         // Removes the first extension after the last dot
         $fileNameSplit = array_reverse(array_map('strrev', explode($splitDelimiter, strrev($fileOriginalName), 2)))[0];
-        
+
         // return [$cardTitle, $filePublicUrl];
         $newCard = $user->cards()->create(['title' => $fileNameSplit, 'interpreter' => 'none']);
 
@@ -81,13 +87,15 @@ class CardController extends Controller
         // $newCard->contents()->save($fileInDatabase);
 
 
-        $newCard->contents()->create(['content_type' => 'file', 
+        $newCard->contents()->create(['content_type' => 'file',
                                     'content_id' => $fileInDatabase->id,
                                     'content_title' => $fileNameSplit,
                                     'position' => '1']);
-        
-        return $newCard->load('contents.getContent');
-        
+
+        // return $newCard->load('contents.getContent');
+
+        return new CardResource($newCard);
+
     }
 
     /**
@@ -96,9 +104,13 @@ class CardController extends Controller
      * @param  \App\Card  $card
      * @return \Illuminate\Http\Response
      */
-    public function show(Card $card)
+    public function show(Request $request)
     {
-        //
+        // $card = Card::with('contents.getContent')->find($request->cardId);
+        $card = Card::find($request->cardId);
+        // return $card;
+        $cardResource = new CardResource($card);
+        return $cardResource;
     }
 
     /**
@@ -152,7 +164,7 @@ class CardController extends Controller
             case 'svg':
             case 'heif':
             case 'hevc':
-                
+
                 return 'image';
 
 
@@ -165,7 +177,7 @@ class CardController extends Controller
             case 'mpg':
             case 'mpeg':
             case 'mov':
-                
+
                 return 'video';
 
 
@@ -185,10 +197,10 @@ class CardController extends Controller
             case 'xlsm':
             case 'xlsx':
             case 'csv':
-                
+
                 return 'document';
 
-            
+
             case 'mid':
             case 'midi':
             case 'mp3':
@@ -196,22 +208,22 @@ class CardController extends Controller
             case 'ogg':
             case 'wav':
             case 'wma':
-                
+
                 return 'audio';
 
-            
-            
+
+
             default:
-                
+
                 return 'other';
-                
+
 
 
         }
 
     }
-    
-    
+
+
     public function cardNotFoundError() {
 
         abort(403, 'The authenticated user does not have access to the requested board.');
@@ -228,15 +240,15 @@ class CardController extends Controller
 
         abort(400, 'No file was included with the request');
 
-    } 
-    
+    }
+
     public function cardFileUploadError() {
 
         abort(400, 'There was an error with the file upload.');
 
     }
 
-    
+
 
 
 }

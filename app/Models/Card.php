@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
+use App\Models\Content;
+
 
 
 class Card extends Model
@@ -92,6 +94,27 @@ class Card extends Model
 
 
     }    
+
+    public function files () {
+
+        // dd ($this->hasManyThrough('App\Models\File', 'App\Models\Content', 'content_id', 'id', 'content_id', 'content_id')->where('content_type', 'file')->toSql());
+
+        return File::join('card_content', 'card_content.content_id', '=', 'files.id')
+                ->where('card_content.card_id', '=', $this->id)
+                ->where('card_content.content_type', '=', 'file')
+                ->get();
+        
+    }
+
+    public function content () {
+
+        return Content::where('card_content.card_id', '=', $this->id)->get();
+
+    }
+
+    public function allCardsWithFiles() {
+
+    }
 
     
     

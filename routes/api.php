@@ -49,7 +49,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
 
+    Route::get('/cards', 'CardController@index');
     Route::post('/cards', 'CardController@store');
+    Route::get('/cards/{cardId}', 'CardController@show');
 
 });
 
