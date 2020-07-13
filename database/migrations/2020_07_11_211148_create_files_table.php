@@ -20,6 +20,8 @@ class CreateFilesTable extends Migration
 
             $table->text('path');
 
+            $table->unsignedBigInteger('size');
+
             $table->text('original_name');
 
             $table->timestamps();
