@@ -22,7 +22,16 @@ class CardController extends Controller
     public function index(Request $request)
     {
 
-        $cards = $request->user()->cards;
+        $queryMode = $request->queryMode ?? 'index';
+        if ($queryMode == 'index') {
+            $cards = $request->user()->cards;
+        } elseif ($queryMode == 'deep') {
+            $cards = $request->user()->cards->load(['files']);
+        } else {
+            abort(400, 'Consult the API docs for accepted queryMode parameters.');
+        }
+       
+        // return dd ($cards);
         // return $cards;
         $cardResourceCollection = new CardResourceCollection($cards);
         // return $cardResourceCollection;
@@ -107,7 +116,7 @@ class CardController extends Controller
     public function show(Request $request)
     {
         // $card = Card::with('contents.getContent')->find($request->cardId);
-        $card = Card::find($request->cardId);
+        $card = Card::find($request->cardId)->load('files');
         // return $card;
         $cardResource = new CardResource($card);
         return $cardResource;

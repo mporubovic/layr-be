@@ -17,10 +17,23 @@ class File extends JsonResource
     {
         // return parent::toArray($request);
         return [
-            'originalName' => $this->original_name,
-            'extension' => $this->extension,
-            'url' => $this->getFileUrl($this->path),
-            'size' => Storage::size($this->path),
+            
+            
+            'meta' => [
+                'originalName' => $this->original_name,
+                'extension' => $this->extension,
+                'size' => $this->size,
+                'uploaded_at' => $this->uploaded_at,
+                'updated_at' => $this->updated_at,
+            ],
+
+            'file' => [
+                'url' => $this->getFileUrl($this->path),
+                'position' => $this->position,
+                'name' => $this->content_title,
+
+            ],
+            
         ];
     }
 

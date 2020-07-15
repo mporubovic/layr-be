@@ -24,7 +24,7 @@ class CreateFilesTable extends Migration
 
             $table->text('original_name');
 
-            $table->timestamps();
+            $table->timestamp('uploaded_at');
         });
     }
 

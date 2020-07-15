@@ -26,7 +26,7 @@ class Content extends JsonResource
             'type' => $this->content_type,
             'position' => $this->position,
             
-            'content' => $this->contentMorph($this->getContent),
+            'content' => $this->contentMorph($this->files),
             
             
         ];

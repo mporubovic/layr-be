@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
-use App\Models\Content;
+use App\Models\Content\File;
+use App\Models\Content\Todo;
+use App\Relations\FileRelation;
 
 
 
@@ -99,20 +101,32 @@ class Card extends Model
 
         // dd ($this->hasManyThrough('App\Models\File', 'App\Models\Content', 'content_id', 'id', 'content_id', 'content_id')->where('content_type', 'file')->toSql());
 
-        return File::join('card_content', 'card_content.content_id', '=', 'files.id')
-                ->where('card_content.card_id', '=', $this->id)
-                ->where('card_content.content_type', '=', 'file')
-                ->get();
+        // return File::join('card_content', 'card_content.content_id', '=', 'files.id')
+        //         ->where('card_content.card_id', '=', $this->id)
+        //         ->where('card_content.content_type', '=', 'file')
+        //         ->get();
+
+        // return File::join('card_content', 'card_content.content_id', '=', 'files.id')
+        //         ->where('card_content.content_type', '=', 'file')
+        //         ->get();
+
+        return new FileRelation($this);
         
+    }
+
+    public function todos () {
+
+        return Todo::join('card_content', 'card_content.content_id', '=', 'todos.id')
+                ->where('card_content.card_id', '=', $this->id)
+                ->where('card_content.content_type', '=', 'todo')
+                ->get();
+
     }
 
     public function content () {
 
         return Content::where('card_content.card_id', '=', $this->id)->get();
-
-    }
-
-    public function allCardsWithFiles() {
+        // return $this->hasMany('App\Models\Content');
 
     }
 
