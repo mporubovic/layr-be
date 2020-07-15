@@ -16,11 +16,12 @@ class CreateCardsTable extends Migration
         Schema::create('cards', function (Blueprint $table) {
             $table->id();            
             
-            $table->text('title');
-            
             $table->unsignedBigInteger('user_id');
             
-            $table->morphs('interpreter');
+            $table->text('title');
+            $table->text('type');
+            
+            $table->json('settings');
 
             $table->timestamps();
             
