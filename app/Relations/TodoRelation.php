@@ -4,12 +4,12 @@
 namespace App\Relations;
 
 use App\Models\Card;
-use App\Models\Content\File;
+use App\Models\Content\Todo;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
-class FileRelation extends Relation
+class TodoRelation extends Relation
 {
 
     
@@ -22,24 +22,24 @@ class FileRelation extends Relation
 
     public function __construct(Card $card)
     {
-        parent::__construct(File::query(), $card);
+        parent::__construct(Todo::query(), $card);
     }
 
     /**
      * @inheritDoc
      */
-    public function addConstraints($order = 'desc')
+    public function addConstraints()
     {
         $this->query
             ->join(
                 'card_content',
                 'card_content.content_id',
                 '=',
-                'files.id'
+                'todos.id'
             )->where(
                 'card_content.content_type',
                 '=',
-                'file'
+                'todo'
             )->orderBy('card_content.position');
     }
 
@@ -72,17 +72,17 @@ class FileRelation extends Relation
     /**
      * @inheritDoc
      */
-    public function match(array $cards, Collection $files, $relation)
+    public function match(array $cards, Collection $todos, $relation)
     {
-        if ($files->isEmpty()) {
+        if ($todos->isEmpty()) {
             return $cards;
         }
 
         foreach ($cards as $card) {
             $card->setRelation(
                 $relation,
-                $files->filter(function (File $file) use ($card) {
-                    return $file->card_id === $card->id;  // `card_id` came with the `join` on `card_content`
+                $todos->filter(function (Todo $todo) use ($card) {
+                    return $todo->card_id === $card->id;  // `card_id` came with the `join` on `card_content`
                 })
             );
         }
