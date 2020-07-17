@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Board;
 use Illuminate\Http\Request;
 
+use App\Http\Resources\Board as BoardResource;
+use App\Http\Resources\BoardCollection as BoardResourceCollection;
+
 class BoardController extends Controller
 {
     /**
@@ -46,22 +49,28 @@ class BoardController extends Controller
         // ]);
         
         
+        $user = $request->user();
         $board = Board::find($request->boardId);
+        $cards = $board->cards;
 
         if ($board == null) {
             $this->boardNotFoundError();
         }
 
-        $boards = $request->user()->boards;
+        $boards = $user->boards;
         // return response()->json($boards);
         
-        if ($boards->contains($board)) {
-            return $board->load('stacks.cards.contents.getContent');
-        } else {
+        if (!$boards->contains($board)) {
             $this->boardNoPermissionError();
         }
-        
 
+        // return $cards;
+        
+        // $cardTypes = array_values(array_unique($cards->pluck('type')->toArray())); // image, video...
+        // $cardContentTypes = $this->cardTypeToContentType($cardTypes);
+        // $cardContentTypes = preg_filter('/$/', 's', $cardContentTypes); //add s to types   files, todos...
+
+        return new BoardResource($board->load('stacks.cards.files'));
     
     }
 

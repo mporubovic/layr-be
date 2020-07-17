@@ -3,9 +3,8 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\ResourceCollection;
-use App\Http\Resources\Content as ContentResource;
 
-class CardCollection extends ResourceCollection
+class StackCollection extends ResourceCollection
 {
     /**
      * Transform the resource collection into an array.
@@ -13,18 +12,11 @@ class CardCollection extends ResourceCollection
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-
-    public static $wrap = 'cards';
-    
+    public static $wrap = 'stacks';
     public function toArray($request)
     {
         // return parent::toArray($request);
-
-        return [
-
-            'cards' => $this->collection,
-            // $this->collection,
-
-        ];
+        // return ['stacks' => $this->collection];
+        return [$this->collection];
     }
 }

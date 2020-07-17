@@ -3,10 +3,9 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\Card as CardResource;
 
-// use App\Http\Resources\Stack as StackkResouce;
-
-class Board extends JsonResource
+class Stack extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -14,9 +13,7 @@ class Board extends JsonResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    
-    public static $wrap = 'boards';
-
+    public static $wrap = 'stacks';
     public function toArray($request)
     {
         // return parent::toArray($request);
@@ -26,7 +23,7 @@ class Board extends JsonResource
                 'title' => $this->title,
             ],
 
-            'stacks' => Stack::collection($this->stacks),
+            'cards' => CardResource::collection($this->cards),
         ];
     }
 }
