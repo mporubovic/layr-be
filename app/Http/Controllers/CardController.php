@@ -90,6 +90,8 @@ class CardController extends Controller
                 return $this->cardNoFileUploadedError();
             }
             $card = $user->cards()->create(['title' => $cardTitle, 'type' => $cardType]);
+            $card->
+            return ($card->)
         }
 
         switch($cardContentType) {
