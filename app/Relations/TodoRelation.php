@@ -40,7 +40,7 @@ class TodoRelation extends Relation
                 'card_content.content_type',
                 '=',
                 'todo'
-            )->orderBy('card_content.position');
+            )->orderBy('card_content.content_position');
     }
 
     /**

@@ -24,13 +24,13 @@ class File extends JsonResource
                 'extension' => $this->extension,
                 'size' => $this->size,
                 'uploaded_at' => $this->uploaded_at,
-                'updated_at' => $this->updated_at,
+                'updated_at' => $this->updated_at, // from card_content table
             ],
 
             'file' => [
                 'url' => $this->getFileUrl($this->path),
-                'position' => $this->position,
-                'name' => $this->content_title,
+                'position' => $this->content_position,
+                'name' => $this->name,
 
             ],
             

@@ -9,13 +9,14 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use App\Models\Content\File;
 use App\Models\Content\Todo;
 use App\Relations\FileRelation;
+use App\Relations\TodoRelation;
 
 
 
 class Card extends Model
 {
 
-    protected $fillable = ['title', 'user_id', 'interpreter'];
+    protected $fillable = ['title', 'user_id', 'type', 'settings'];
 
     public function user() {
 
@@ -116,10 +117,7 @@ class Card extends Model
 
     public function todos () {
 
-        return Todo::join('card_content', 'card_content.content_id', '=', 'todos.id')
-                ->where('card_content.card_id', '=', $this->id)
-                ->where('card_content.content_type', '=', 'todo')
-                ->get();
+        return new TodoRelation($this);
 
     }
 

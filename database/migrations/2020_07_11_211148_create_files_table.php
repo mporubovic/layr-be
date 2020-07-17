@@ -22,6 +22,7 @@ class CreateFilesTable extends Migration
 
             $table->unsignedBigInteger('size');
 
+            $table->text('name');
             $table->text('original_name');
 
             $table->timestamp('uploaded_at');

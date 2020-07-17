@@ -23,9 +23,9 @@ class CreateCardContentTable extends Migration
             
             $table->text('content_type');
             $table->unsignedBigInteger('content_id');
-            $table->text('content_title');
+            // $table->text('content_title');
             
-            $table->unsignedSmallInteger('position');
+            $table->unsignedSmallInteger('content_position');
 
             $table->timestamps();
         });

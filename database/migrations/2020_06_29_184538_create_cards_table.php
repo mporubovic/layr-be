@@ -21,7 +21,7 @@ class CreateCardsTable extends Migration
             $table->text('title');
             $table->text('type');
             
-            $table->json('settings');
+            $table->json('settings')->nullable;
 
             $table->timestamps();
             

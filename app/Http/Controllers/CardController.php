@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Card;
-use App\Models\File;
+use App\Models\Content\File;
+use App\Models\Content\Todo;
 use App\Models\Content;
 use Illuminate\Http\Request;
 
@@ -11,6 +12,7 @@ use App\Http\Resources\Card as CardResource;
 use App\Http\Resources\CardCollection as CardResourceCollection;
 
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Builder;
 
 class CardController extends Controller
 {
@@ -21,33 +23,31 @@ class CardController extends Controller
      */
     public function index(Request $request)
     {
+        
+        $cards = $request->user()->cards;
+
+        $cardTypes = array_values(array_unique($cards->pluck('type')->toArray())); // image, video...
+        $cardContentTypes = $this->cardTypeToContentType($cardTypes);
+        $cardContentTypes = preg_filter('/$/', 's', $cardContentTypes); //add s to types   files, todos...
+
 
         $queryMode = $request->queryMode ?? 'index';
         if ($queryMode == 'index') {
-            $cards = $request->user()->cards;
+            
         } elseif ($queryMode == 'deep') {
-            $cards = $request->user()->cards->load(['files']);
+            $cards->load($cardContentTypes);
+            
         } else {
             abort(400, 'Consult the API docs for accepted queryMode parameters.');
         }
        
-        // return dd ($cards);
-        // return $cards;
-        $cardResourceCollection = new CardResourceCollection($cards);
-        // return $cardResourceCollection;
 
-        return $cardResourceCollection;
+        return new CardResourceCollection($cards); // TODO: this will perform SQL query with all cards for all types
+                                                    // rather should group cards by type and loop to get ids
+
+
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -57,53 +57,204 @@ class CardController extends Controller
      */
     public function store(Request $request)
     {
-        if (!$request->hasFile('file')) {
-            $this->cardNoFileUploadedError();
+        $user = $request->user();
+        $cardId = $request->cardId ?? null;
+
+        if ($cardId !== null) {
+
+            $card = Card::find($request->cardId);
+
+            if ($card == null) {
+                return $this->cardNotFoundError();
+            }
+
+            if ($card->user_id !== $user->id) {
+                return $this->cardNoPermissionError();
+            }
+            
+            // $cards = $request->user()->cards;
+
+            // if (!$cards->contains($card)) {
+            //     return $this->cardNoPermissionError();
+            // }
+            
+            $cardType = $card->type;
+            $cardContentType = $this->cardTypeToContentType($cardType);
+            $cardContentLast = $card->contents()->max('content_position') ?? 0;
+
+        } else {
+            $cardType = $request->type;
+            $cardContentType = $this->cardTypeToContentType($cardType);
+            $cardTitle = $request->title;
+            if ($cardContentType == 'file' && !$request->hasFile('file')) {
+                return $this->cardNoFileUploadedError();
+            }
+            $card = $user->cards()->create(['title' => $cardTitle, 'type' => $cardType]);
         }
 
-        $file = $request->file('file');
+        switch($cardContentType) {
+            case('file'):
+                if (!$request->hasFile('file')) {
+                    return $this->cardNoFileUploadedError();
+                }
+                
+                $files = $request->file('file');
+                $this->cardFileHandler($files, $card, $cardType, $cardContentType, $cardContentLast ?? 0);        
+                $eagerLoadContent = 'files';
+                break;
 
-        if (!$file->isValid()) {
+            case('todo'):
+                
+                $todos = [$request->content];
+                $this->cardTodoHandler($todos, $card, $cardType, $cardContentType, $cardContentLast ?? 0);
+                $eagerLoadContent = 'todos';
+                break;
+        }
+
+        return new CardResource($card->load($eagerLoadContent));
+
+
+
+    }
+
+    public function cardTypeToContentType($types) {
+
+        $cardTypes = [
+                'image' => 'file',
+                'video' => 'file',
+                'pdf' => 'file',
+                '3dobject' => 'file',
+
+                'text' => 'richtext',
+
+                'word' => 'iframe',
+                'powerpoint' => 'iframe',
+                'excel' => 'iframe',
+
+                'instagram' => 'iframe',
+
+                'todo' => 'todo',
+                'url' => 'url',
+
+                'folder' => 'file',
+            ];
+
+        $cardContentTypes = [];
+
+        if (!is_array($types)) {
+            return $cardTypes[$types];
+        }
+        
+        foreach($types as $type) {    
+
+
+            $cardContentType = $cardTypes[$type] ?? 'other';
+            
+
+            if ($cardContentType == 'other') {
+
+                array_push($cardContentTypes, 'file');
+
+            } else {
+
+                array_push($cardContentTypes, $cardContentType);
+            }
+        }
+        return $cardContentTypes;
+
+
+    }
+
+    public function cardValidateFileCombination(array $files, string $cardType) {
+
+        
+        $legalFileCombinations = [
+            'image' => ['jpg', 'jpeg', 'bmp', 'gif', 'ico', 'png', 'tif', 'tiff', 'ps', 'eps', 'svg', 'heic'],
+            'video' => ['avi', 'h264', 'm4v', 'mp4', 'wmv', 'mpg', 'mpeg', 'mov', 'heif', 'hevc'],
+            'pdf' => ['pdf'],
+            '3dobject' => ['stl', 'obj'],
+            'audio' => ['mid', 'midi', 'mp3', 'mpa', 'ogg', 'wav', 'wma'],
+        ];
+        if (empty(array_diff($files, $legalFileCombinations[$cardType]))) {
+
+            return true;
+
+        } else {
+            return false;
+        }
+
+
+    }
+
+
+    public function cardFileHandler($files, $card, $cardType, $cardContentType, $cardContentLast) {
+
+        if (!$files->isValid()) {
             $this->cardFileUploadError();
         }
 
 
-        $user = $request->user();
+        $fileExtensions = [$files->extension()];
 
 
-        $filePath = $file->store('a');
-        $fileOriginalName = $file->getClientOriginalName();
-        $fileExtension = $file->extension();
-        $fileSize = $file->getSize();
 
-        $fileInDatabase = new File([
-            'extension' => $fileExtension,
-            'path' => $filePath,
-            'size' => $fileSize,
-            'original_name' => $fileOriginalName,
-        ]);
+        $fileCombinationValidation = $this->cardValidateFileCombination($fileExtensions, $cardType);
+        if ($fileCombinationValidation == false) {
+            abort(400, 'Illegal file combination for ' . $cardType);
+        }
 
-        $fileInDatabase->save();
+        $fileArray = array($files);
+        foreach ($fileArray as $index=>$file) {
+            
+            $filePath = $file->store('a');
+            $fileOriginalName = $file->getClientOriginalName();
+            $fileExtension = $file->extension();
+            $fileSize = $file->getSize();
+            
+            $splitDelimiter = '.';
+            // Removes the first extension after the last dot
+            $fileNameSplit = array_reverse(array_map('strrev', explode($splitDelimiter, strrev($fileOriginalName), 2)))[0];
+            
+            $fileInDatabase = new File([
+                'extension' => $fileExtension,
+                'path' => $filePath,
+                'size' => $fileSize,
+                'name' => $fileNameSplit,
+                'original_name' => $fileOriginalName,
+            ]);
 
-        $splitDelimiter = '.';
-        // Removes the first extension after the last dot
-        $fileNameSplit = array_reverse(array_map('strrev', explode($splitDelimiter, strrev($fileOriginalName), 2)))[0];
-
-        // return [$cardTitle, $filePublicUrl];
-        $newCard = $user->cards()->create(['title' => $fileNameSplit, 'interpreter' => 'none']);
 
 
-        // $newCard->contents()->save($fileInDatabase);
+            $fileInDatabase->save();
 
+            
 
-        $newCard->contents()->create(['content_type' => 'file',
-                                    'content_id' => $fileInDatabase->id,
-                                    'content_title' => $fileNameSplit,
-                                    'position' => '1']);
+            $card->contents()->create([
+                'content_type' => $cardContentType,
+                'content_id' => $fileInDatabase->id,
+                'content_position' => $cardContentLast + $index + 1, // 1-based position index
+            ]);
+        }
 
-        // return $newCard->load('contents.getContent');
+    }
 
-        return new CardResource($newCard);
+    public function cardTodoHandler(array $todos, $card, $cardType, $cardContentType, $cardContentLast) {
+
+        foreach ($todos as $index=>$todo) {
+
+            $todoInDatabse = new Todo([
+                'body' => $todo,
+            ]);
+
+            $todoInDatabse->save();
+
+            $card->contents()->create([
+                'content_type' => $cardContentType,
+                'content_id' => $todoInDatabse->id,
+                'content_position' => $cardContentLast + $index + 1, // 1-based position index
+            ]);
+            
+        }
 
     }
 
@@ -116,22 +267,41 @@ class CardController extends Controller
     public function show(Request $request)
     {
         // $card = Card::with('contents.getContent')->find($request->cardId);
-        $card = Card::find($request->cardId)->load('files');
+
+        // $card = Card::find($request->cardId)->load('files');
+        $card = Card::find($request->cardId);
+
+        if ($card == null) {
+            $this->cardNotFoundError();
+        }
+
+        $cards = $request->user()->cards;
+        // return response()->json($cards);
+
+        if (!$cards->contains($card)) {
+            return $this->cardNoPermissionError();    
+        }
+        
+        $cardType = $card->type;
+        
+        $cardContentType = $this->cardTypeToContentType(array($cardType));
+        
+        $cardContentType = array_values(preg_filter('/$/', 's', $cardContentType));
+        // return $cardContentType;
+ 
+        
+        $card->load($cardContentType);
+        // return ($card->has('files')->get());
+        // return Card::whereHas('files', function (Builder $query) {
+        //     $query->join('card_content', 'card_content.content_id', '=', 'files.id');
+        // })->get();
+
         // return $card;
-        $cardResource = new CardResource($card);
-        return $cardResource;
+        // return $card;
+        return new CardResource($card);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Card  $card
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Card $card)
-    {
-        //
-    }
+
 
     /**
      * Update the specified resource in storage.
@@ -171,8 +341,7 @@ class CardController extends Controller
             case 'ps':
             case 'eps':
             case 'svg':
-            case 'heif':
-            case 'hevc':
+            case 'heic':
 
                 return 'image';
 
@@ -186,6 +355,8 @@ class CardController extends Controller
             case 'mpg':
             case 'mpeg':
             case 'mov':
+            case 'heif':
+            case 'hevc':
 
                 return 'video';
 
@@ -235,13 +406,13 @@ class CardController extends Controller
 
     public function cardNotFoundError() {
 
-        abort(403, 'The authenticated user does not have access to the requested board.');
+        abort(403, 'The authenticated user does not have access to the requested card.');
 
     }
 
     public function cardNoPermissionError() {
 
-        abort(403, 'The authenticated user does not have access to the requested board.');
+        abort(403, 'The authenticated user does not have access to the requested card.');
 
     }
 

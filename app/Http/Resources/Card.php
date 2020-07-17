@@ -32,7 +32,7 @@ class Card extends JsonResource
             'attributes' => [
                 'id' => $this->id,
                 'title' => $this->title,            
-                'type' => 'image'
+                'type' => $this->type
             ],
 
             // 'content' => new ContentCollection($this->contents),
@@ -46,8 +46,9 @@ class Card extends JsonResource
             //                     }
             //                 }),
 
-            'content' => FileResource::collection($this->whenLoaded('files'))->sortByDesc('file.position'),
+            // 'content' => FileResource::collection($this->whenLoaded('files')),
             // 'content' => TodoResource::collection($this->whenLoaded('todos')),
+            'content' => $this->cardGetContentResource($this->type),
                 
 
             
@@ -55,7 +56,7 @@ class Card extends JsonResource
             
     }
     
-    public function cardContentType ($type) {
+    public function cardGetContentResource ($type) {
 
         switch($type) {
 
@@ -63,22 +64,15 @@ class Card extends JsonResource
             case 'video':
             case 'eps':
             case 'pdf':
-            case 'file':
+            // case 'file':
 
-                return 'file';
+                return FileResource::collection($this->whenLoaded('files'));
 
 
 
-            case 'avi':
-            case 'h264':
-            case 'm4v':
-            case 'mp4':
-            case 'wmv':
-            case 'mpg':
-            case 'mpeg':
-            case 'mov':
+            case 'todo':
 
-                return 'video';
+                return TodoResource::collection($this->whenLoaded('todos'));
 
 
 
