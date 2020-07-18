@@ -58,40 +58,19 @@ class CardController extends Controller
     public function store(Request $request)
     {
         $user = $request->user();
-        $cardId = $request->cardId ?? null;
+        
+        $cardTitle = $request->title ?? null;
+        
+        $cardType = $request->type;
+        $cardContentType = $this->cardTypeToContentType($cardType);
 
-        if ($cardId !== null) {
-
-            $card = Card::find($request->cardId);
-
-            if ($card == null) {
-                return $this->cardNotFoundError();
-            }
-
-            if ($card->user_id !== $user->id) {
-                return $this->cardNoPermissionError();
-            }
-            
-            // $cards = $request->user()->cards;
-
-            // if (!$cards->contains($card)) {
-            //     return $this->cardNoPermissionError();
-            // }
-            
-            $cardType = $card->type;
-            $cardContentType = $this->cardTypeToContentType($cardType);
-            $cardContentLast = $card->contents()->max('content_position') ?? 0;
-
-        } else {
-            $cardType = $request->type;
-            $cardContentType = $this->cardTypeToContentType($cardType);
-            $cardTitle = $request->title;
-            if ($cardContentType == 'file' && !$request->hasFile('file')) {
-                return $this->cardNoFileUploadedError();
-            }
-            $card = $user->cards()->create(['title' => $cardTitle, 'type' => $cardType]);
+        if ($cardContentType == 'file' && !$request->hasFile('file')) {
+            return $this->cardNoFileUploadedError();
         }
+        $card = $user->cards()->create(['title' => $cardTitle, 'type' => $cardType]);
+        
 
+        
         switch($cardContentType) {
             
             case('file'):
@@ -100,14 +79,14 @@ class CardController extends Controller
                 }
                 
                 $files = $request->file('file');
-                $this->cardFileHandler($files, $card, $cardType, $cardContentType, $cardContentLast ?? 0);        
+                $this->cardFileHandler($files, $card, $cardType, $cardContentType, 0);        
                 $eagerLoadContent = 'files';
                 break;
 
             case('todo'):
                 
                 $todos = [$request->content];
-                $this->cardTodoHandler($todos, $card, $cardType, $cardContentType, $cardContentLast ?? 0);
+                $this->cardTodoHandler($todos, $card, $cardType, $cardContentType, 0);
                 $eagerLoadContent = 'todos';
                 break;
         }
