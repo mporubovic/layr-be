@@ -19,7 +19,7 @@ class CreateCardStackTable extends Migration
             $table->unsignedBigInteger('card_id');
             $table->unsignedBigInteger('stack_id');
 
-            $table->unsignedInteger('order');
+            $table->unsignedInteger('position');
             
             $table->timestamps();
             
