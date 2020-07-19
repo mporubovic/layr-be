@@ -75,7 +75,7 @@ class CardController extends Controller
         $stack = \App\Models\Stack::with('cards')->find($stackId);
 
         $stackCardLast = $stack->cards()->max('position');
-        $stack->cards()->attach($card, ['position' => $stackCardLast]);
+        $stack->cards()->attach($card, ['position' => $stackCardLast + 1]);
         
 
         
@@ -100,6 +100,7 @@ class CardController extends Controller
         }
 
         return new CardResource($card->load($eagerLoadContent));
+        // return CardResource::collection($card->load($eagerLoadContent));
 
 
 
@@ -265,7 +266,7 @@ class CardController extends Controller
             $this->cardNotFoundError();
         }
 
-        if (!$card->user_id != $user->id) {
+        if ($card->user_id != $user->id) {
             return $this->cardNoPermissionError();    
         }
         
@@ -274,10 +275,15 @@ class CardController extends Controller
         $cardContentType = $this->cardTypeToContentType(array($cardType));
         
         $cardContentType = array_values(preg_filter('/$/', 's', $cardContentType));
-        // return $cardContentType;
- 
-        
-        $card->load([$cardContentType, 'stacks']);
+
+        $eagerLoadRelations = array_push($cardContentType, 'stacks');
+
+        // return [1 => $cardContentType];
+        // // return $cardContentType;
+
+
+        // $card->load([$cardContentType, 'stacks']);
+        $card->load($cardContentType);
         // return ($card->has('files')->get());
         // return Card::whereHas('files', function (Builder $query) {
         //     $query->join('card_content', 'card_content.content_id', '=', 'files.id');

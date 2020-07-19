@@ -27,16 +27,6 @@ class ContentController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -45,21 +35,18 @@ class ContentController extends Controller
     public function store(Request $request)
     {
         $user = $request->user();
-        $card = Card::find($request->cardId);
+        $card = Card::with('user')->find($request->cardId);
 
         if ($card == null) {
             return $this->cardNotFoundError();
         }
 
-        if ($card->user_id !== $user->id) {
+        if ($card->user_id != $user->id) {
             return $this->cardNoPermissionError();
         }
         
         // $cards = $request->user()->cards;
 
-        // if (!$cards->contains($card)) {
-        //     return $this->cardNoPermissionError();
-        // }
         
         $cardType = $card->type;
         $cardContentType = $this->cardTypeToContentType($cardType);
@@ -98,16 +85,6 @@ class ContentController extends Controller
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Content  $content
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Content $content)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.

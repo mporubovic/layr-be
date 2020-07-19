@@ -15,7 +15,7 @@ class Board extends JsonResource
      * @return array
      */
     
-    public static $wrap = 'boards';
+    public static $wrap = 'board';
 
     public function toArray($request)
     {
@@ -26,7 +26,7 @@ class Board extends JsonResource
                 'title' => $this->title,
             ],
 
-            'stacks' => Stack::collection($this->stacks),
+            'stacks' => Stack::collection($this->whenLoaded('stacks')),
         ];
     }
 }

@@ -19,7 +19,8 @@ class Card extends JsonResource
      */
 
     
-    public static $wrap = 'cards';
+    // public static $wrap = 'cards';
+    public static $wrap = 'card';
     
     public function toArray($request)
     {
@@ -29,13 +30,24 @@ class Card extends JsonResource
         // return 'hello';
         
         return [
-            'attributes' => [
+            'info' => [
                 'id' => $this->id,
                 // 'stackId' => $this->whenPivotLoaded('card_stack', function () {
                 //     return $this->stacks()->pluck('id');
                 // }),            
                 'title' => $this->title,            
-                'type' => $this->type
+                'signed_by' => [
+                    'name' => $this->user->name,
+                    'id' => $this->user_id
+                ],
+
+                'type' => $this->type,
+                'created_at' => $this->created_at,
+                'updated_at' => $this->updated_at,
+                // 'stacks' => $this->whenLoaded('stacks'),
+                'stacks' => $this->when($this->relationLoaded('stacks'), function () {
+                                return $this->stacks->pluck('id');
+                            }),
             ],
 
             // 'content' => new ContentCollection($this->contents),
