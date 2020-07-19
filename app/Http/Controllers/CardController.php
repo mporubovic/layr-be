@@ -324,7 +324,7 @@ class CardController extends Controller
         //     ->update($fields);
         $card->fill($fields);
 
-        $card->refresh();
+        $card->save();
 
         return new CardResource($card);
     }
