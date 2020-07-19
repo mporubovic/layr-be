@@ -94,6 +94,7 @@ class CardController extends Controller
             case('todo'):
                 
                 $todos = $request->content;
+                // return var_dump($todos);
                 $this->cardTodoHandler($todos, $card, $cardType, $cardContentType, 0);
                 $eagerLoadContent = 'todos';
                 break;
@@ -232,7 +233,7 @@ class CardController extends Controller
         foreach ($todos as $index=>$todo) {
 
             $todoInDatabse = new Todo([
-                'body' => $todo->body,
+                'body' => $todo['body'],
             ]);
 
             $todoInDatabse->save();
