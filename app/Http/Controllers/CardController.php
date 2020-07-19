@@ -232,7 +232,7 @@ class CardController extends Controller
         foreach ($todos as $index=>$todo) {
 
             $todoInDatabse = new Todo([
-                'body' => $todo,
+                'body' => $todo->body,
             ]);
 
             $todoInDatabse->save();
