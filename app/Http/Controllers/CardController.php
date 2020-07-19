@@ -318,7 +318,7 @@ class CardController extends Controller
         }
 
         $fields = $request->fields;
-        $fields = json_decode(stripslashes($fields), true);
+        // $fields = json_decode(stripslashes($fields), true);
         // return json_decode(stripslashes($request->fields), true);
         // $n = Card::where('id', $card->id)
         //     ->update($fields);
