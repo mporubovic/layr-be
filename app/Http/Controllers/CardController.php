@@ -66,7 +66,7 @@ class CardController extends Controller
         $cardType = $request->type;
         $cardContentType = $this->cardTypeToContentType($cardType);
 
-        if ($cardContentType == 'file' && !$request->hasFile('file')) {
+        if ($cardContentType == 'file' && !$request->hasFile('content')) {
             return $this->cardNoFileUploadedError();
         }
         $card = $user->cards()->create(['title' => $cardTitle, 'type' => $cardType]);
@@ -82,11 +82,11 @@ class CardController extends Controller
         switch($cardContentType) {
             
             case('file'):
-                if (!$request->hasFile('file')) {
+                if (!$request->hasFile('content')) {
                     return $this->cardNoFileUploadedError();
                 }
                 
-                $files = $request->file('file');
+                $files = $request->file('content');
                 $this->cardFileHandler($files, $card, $cardType, $cardContentType, 0);        
                 $eagerLoadContent = 'files';
                 break;
