@@ -93,7 +93,7 @@ class CardController extends Controller
 
             case('todo'):
                 
-                $todos = [$request->content];
+                $todos = $request->content;
                 $this->cardTodoHandler($todos, $card, $cardType, $cardContentType, 0);
                 $eagerLoadContent = 'todos';
                 break;
