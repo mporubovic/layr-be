@@ -31,6 +31,9 @@ class Card extends JsonResource
         return [
             'attributes' => [
                 'id' => $this->id,
+                // 'stackId' => $this->whenPivotLoaded('card_stack', function () {
+                //     return $this->stacks()->pluck('id');
+                // }),            
                 'title' => $this->title,            
                 'type' => $this->type
             ],

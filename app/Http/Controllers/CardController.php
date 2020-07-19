@@ -58,6 +58,8 @@ class CardController extends Controller
     public function store(Request $request)
     {
         $user = $request->user();
+
+        $stackId = $request->stackId;
         
         $cardTitle = $request->title ?? null;
         
@@ -68,6 +70,12 @@ class CardController extends Controller
             return $this->cardNoFileUploadedError();
         }
         $card = $user->cards()->create(['title' => $cardTitle, 'type' => $cardType]);
+
+        // return $user->stacks()->attach($card);
+        $stack = \App\Models\Stack::with('cards')->find($stackId);
+
+        $stackCardLast = $stack->cards()->max('position');
+        $stack->cards()->attach($card, ['position' => $stackCardLast]);
         
 
         
@@ -249,16 +257,15 @@ class CardController extends Controller
         // $card = Card::with('contents.getContent')->find($request->cardId);
 
         // $card = Card::find($request->cardId)->load('files');
+        $user = $request->user();
+        
         $card = Card::find($request->cardId);
 
         if ($card == null) {
             $this->cardNotFoundError();
         }
 
-        $cards = $request->user()->cards;
-        // return response()->json($cards);
-
-        if (!$cards->contains($card)) {
+        if (!$card->user_id != $user->id) {
             return $this->cardNoPermissionError();    
         }
         
@@ -270,7 +277,7 @@ class CardController extends Controller
         // return $cardContentType;
  
         
-        $card->load($cardContentType);
+        $card->load([$cardContentType, 'stacks']);
         // return ($card->has('files')->get());
         // return Card::whereHas('files', function (Builder $query) {
         //     $query->join('card_content', 'card_content.content_id', '=', 'files.id');
@@ -292,7 +299,26 @@ class CardController extends Controller
      */
     public function update(Request $request, Card $card)
     {
-        //
+
+        $user = $request->user();
+        $card = Card::find($request->cardId);
+
+        if ($card == null) {
+            return $this->cardNotFoundError();
+        }
+
+        if ($card->user_id != $user->id) {
+            return $this->cardNoPermissionError();
+        }
+
+        $fields = $request->fields;
+        $fields = json_decode(stripslashes($fields), true);
+        // return json_decode(stripslashes($request->fields), true);
+        // $n = Card::where('id', $card->id)
+        //     ->update($fields);
+        $card->fill($fields);
+
+        return new CardResource($card);
     }
 
     /**

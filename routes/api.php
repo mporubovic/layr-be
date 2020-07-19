@@ -53,6 +53,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/cards', 'CardController@store');
     Route::get('/cards/{cardId}', 'CardController@show');
 
+    Route::patch('/cards/{cardId}', 'CardController@update');
+
 
 });
 

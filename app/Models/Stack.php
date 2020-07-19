@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Stack extends Model
 {
+    
+    protected $fillable = ['position'];
+     
     public function user() {
 
         return $this->belongsTo('App\Models\User');

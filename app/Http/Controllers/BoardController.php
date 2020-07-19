@@ -21,7 +21,8 @@ class BoardController extends Controller
         $user = $request->user();
 
         // return $user->with('boards.stacks.cards.files.content')->get();
-        return $user->boards;
+        // return $user->boards;
+        return new BoardResourceCollection($user->boards);
         
         // $boards = Board::orderBy('updated_at', 'desc')->get();
 
@@ -50,17 +51,15 @@ class BoardController extends Controller
         
         
         $user = $request->user();
+        // $board = Board::find($request->boardId);
         $board = Board::find($request->boardId);
-        $cards = $board->cards;
 
         if ($board == null) {
             $this->boardNotFoundError();
         }
-
-        $boards = $user->boards;
         // return response()->json($boards);
         
-        if (!$boards->contains($board)) {
+        if ($board->user_id != $user->id) {
             $this->boardNoPermissionError();
         }
 
@@ -70,7 +69,10 @@ class BoardController extends Controller
         // $cardContentTypes = $this->cardTypeToContentType($cardTypes);
         // $cardContentTypes = preg_filter('/$/', 's', $cardContentTypes); //add s to types   files, todos...
 
-        return new BoardResource($board->load('stacks.cards.files'));
+        // return new BoardResource($board->load('stacks.cards.files'));
+        // return new BoardResource($board->load('stacks.cards.files'));
+        return new BoardResource($board->load(['stacks.cards.files', 'stacks.cards.todos']));
+        // return new BoardResource($board->load(['stacks.cards.files', 'stacks.cards.todos']));
     
     }
 
@@ -156,22 +158,25 @@ class BoardController extends Controller
         
         $board = Board::find($request->boardId);
 
-        if ($board == null) {
-            $this->boardNotFoundError();
-        }
-        
-        $boards = $request->user()->boards;
-        // return response()->json($boards);
-        
-        if ($boards->contains($board)) {
-            
-            $board->update($request->only('title'));
+        $user = $request->user();
 
-            return null;
-        
-        } else {
-            $this->boardNoPermissionError();
+        if ($board == null
+        ) {
+            return $this->boardNotFoundError();
         }
+
+        if ($board->user_id != $user->id) {
+            return $this->boardNoPermissionError();
+        }
+
+        $fields = $request->fields;
+        $fields = json_decode(stripslashes($fields), true);
+        // return json_decode(stripslashes($request->fields), true);
+        // $n = board::where('id', $board->id)
+        //     ->update($fields);
+        $board->fill($fields);
+
+        return new BoardResource($board);
         
     }
 

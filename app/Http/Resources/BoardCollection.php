@@ -12,6 +12,8 @@ class BoardCollection extends ResourceCollection
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
+
+    public static $wrap = 'boards';
     public function toArray($request)
     {
         // return parent::toArray($request);

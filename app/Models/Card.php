@@ -31,7 +31,7 @@ class Card extends Model
     }
 
 
-    public function stack() {
+    public function stacks() {
 
         return $this->belongsToMany(Stack::class);
 
