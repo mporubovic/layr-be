@@ -336,9 +336,37 @@ class CardController extends Controller
      * @param  \App\Card  $card
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Card $card)
+    public function destroy(Request $request)
     {
-        //
+        
+        $card = Card::find($request->cardId);
+
+        if ($card == null) {
+            return $this->cardNotFoundError();
+        }
+        
+        $user = $request->user();
+        
+        if ($card->user_id != $user->id) {
+            return $this->cardNoPermissionError();
+        }
+
+        $cardType = $card->type;
+
+        $cardContentType = implode($this->cardTypeToContentType(array($cardType)));
+
+        switch($cardContentType) {
+            case ('file'):
+                $card->files()->delete();
+                break;
+            case ('todo'):
+                $card->todos()->delete();
+                break;
+        }
+
+
+        $card->contents()->delete(); // card_content pivot
+        $card->delete(); // including card_stack pivot
     }
 
     public function cardAssignInterpreter ($extension) {

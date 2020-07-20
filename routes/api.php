@@ -54,6 +54,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/cards/{cardId}', 'CardController@show');
 
     Route::patch('/cards/{cardId}', 'CardController@update');
+    Route::delete('/cards/{cardId}', 'CardController@destroy');
 
 
 });
