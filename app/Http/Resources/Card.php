@@ -6,6 +6,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 use App\Http\Resources\File as FileResource;
 use App\Http\Resources\Todo as TodoResource;
+use App\Http\Resources\Url as UrlResource;
 // use App\Http\Resources\Content as ContentResource;
 // use App\Http\Resources\ContentCollection as ContentResourceCollection;
 
@@ -88,6 +89,10 @@ class Card extends JsonResource
             case 'todo':
 
                 return TodoResource::collection($this->whenLoaded('todos'));
+
+            case 'url':
+
+                return UrlResource::collection($this->whenLoaded('urls'));
 
 
 

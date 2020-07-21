@@ -8,9 +8,11 @@ use App\Models\Card;
 
 use App\Models\Content\File;
 use App\Models\Content\Todo;
+use App\Models\Content\Url;
 use App\Models\Content;
 
 use App\Http\Resources\Card as CardResource;
+use App\Http\Resources\FileCollection as FileResourceCollection;
 use App\Http\Resources\CardCollection as CardResourceCollection;
 
 class ContentController extends Controller
@@ -52,22 +54,33 @@ class ContentController extends Controller
         $cardContentType = $this->cardTypeToContentType($cardType);
         $cardContentLast = $card->contents()->max('content_position') ?? 0;
 
+
         switch($cardContentType) {
             case('file'):
-                if (!$request->hasFile('file')) {
+                if (!$request->hasFile('content')) {
                     return $this->cardNoFileUploadedError();
                 }
                 
-                $files = $request->file('file');
-                $this->cardFileHandler($files, $card, $cardType, $cardContentType, $cardContentLast ?? 0);        
+                $files = $request->file('content');
+                $this->cardFileHandler($files, $card, $cardType, $cardContentType, $cardContentLast);        
                 $eagerLoadContent = 'files';
+                // return new FileResourceCollection($filesInDatabse); // doesn't return pivot table info
+            
                 break;
 
             case('todo'):
                 
-                $todos = [$request->content];
-                $this->cardTodoHandler($todos, $card, $cardType, $cardContentType, $cardContentLast ?? 0);
+                $todos = $request->content;
+                $this->cardTodoHandler($todos, $card, $cardType, $cardContentType, $cardContentLast);
                 $eagerLoadContent = 'todos';
+                break;
+
+            case ('url'):
+
+                $urls = $request->content;
+                // return var_dump($urls);
+                $this->cardUrlHandler($urls, $card, $cardType, $cardContentType, $cardContentLast);
+                $eagerLoadContent = 'urls';
                 break;
         }
 
@@ -181,32 +194,33 @@ class ContentController extends Controller
 
     public function cardFileHandler($files, $card, $cardType, $cardContentType, $cardContentLast) {
 
-        if (!$files->isValid()) {
-            $this->cardFileUploadError();
+        $fileExtensions = [];
+        foreach ($files as $file) {
+            if (!$file->isValid()) {
+                $this->cardFileUploadError();
+            }
+
+
+            array_push($fileExtensions, $file->extension());
         }
-
-
-        $fileExtensions = [$files->extension()];
-
-
 
         $fileCombinationValidation = $this->cardValidateFileCombination($fileExtensions, $cardType);
         if ($fileCombinationValidation == false) {
             abort(400, 'Illegal file combination for ' . $cardType);
         }
 
-        $fileArray = array($files);
-        foreach ($fileArray as $index=>$file) {
-            
+        $filesInDatabse = [];
+        foreach ($files as $index => $file) {
+
             $filePath = $file->store('a');
             $fileOriginalName = $file->getClientOriginalName();
             $fileExtension = $file->extension();
             $fileSize = $file->getSize();
-            
+
             $splitDelimiter = '.';
             // Removes the first extension after the last dot
             $fileNameSplit = array_reverse(array_map('strrev', explode($splitDelimiter, strrev($fileOriginalName), 2)))[0];
-            
+
             $fileInDatabase = new File([
                 'extension' => $fileExtension,
                 'path' => $filePath,
@@ -215,11 +229,12 @@ class ContentController extends Controller
                 'original_name' => $fileOriginalName,
             ]);
 
-
-
-            $fileInDatabase->save();
-
             
+            array_push($filesInDatabse, $fileInDatabase);
+            $fileInDatabase->save();
+            
+            
+
 
             $card->contents()->create([
                 'content_type' => $cardContentType,
@@ -227,6 +242,9 @@ class ContentController extends Controller
                 'content_position' => $cardContentLast + $index + 1, // 1-based position index
             ]);
         }
+
+        return $filesInDatabse;
+
 
     }
 
@@ -248,6 +266,26 @@ class ContentController extends Controller
             
         }
 
+    }
+
+    public function cardUrlHandler(array $urls, $card, $cardType, $cardContentType, $cardContentLast)
+    {
+
+        foreach ($urls as $index => $url) {
+
+            $urlInDatabse = new Url([
+                'path' => $url['path'],
+                'name' => $url['path'],
+            ]);
+
+            $urlInDatabse->save();
+
+            $card->contents()->create([
+                'content_type' => $cardContentType,
+                'content_id' => $urlInDatabse->id,
+                'content_position' => $cardContentLast + $index + 1, // 1-based position index
+            ]);
+        }
     }
 
     public function cardNotFoundError() {

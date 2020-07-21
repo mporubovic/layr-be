@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Card;
 use App\Models\Content\File;
 use App\Models\Content\Todo;
+use App\Models\Content\Url;
 use App\Models\Content;
 use Illuminate\Http\Request;
 
@@ -86,6 +87,7 @@ class CardController extends Controller
                     return $this->cardNoFileUploadedError();
                 }
                 
+                // $files = $request->file('content');
                 $files = $request->file('content');
                 $this->cardFileHandler($files, $card, $cardType, $cardContentType, 0);        
                 $eagerLoadContent = 'files';
@@ -97,6 +99,14 @@ class CardController extends Controller
                 // return var_dump($todos);
                 $this->cardTodoHandler($todos, $card, $cardType, $cardContentType, 0);
                 $eagerLoadContent = 'todos';
+                break;
+
+            case ('url'):
+
+                $urls = $request->content;
+                // return var_dump($urls);
+                $this->cardUrlHandler($urls, $card, $cardType, $cardContentType, 0);
+                $eagerLoadContent = 'urls';
                 break;
         }
 
@@ -179,22 +189,24 @@ class CardController extends Controller
 
     public function cardFileHandler($files, $card, $cardType, $cardContentType, $cardContentLast) {
 
-        if (!$files->isValid()) {
-            $this->cardFileUploadError();
+            
+        $fileExtensions = [];
+        foreach ($files as $file) {
+            if (!$file->isValid()) {
+                $this->cardFileUploadError();
+            }
+
+
+            array_push($fileExtensions, $file->extension());
+
         }
-
-
-        $fileExtensions = [$files->extension()];
-
-
 
         $fileCombinationValidation = $this->cardValidateFileCombination($fileExtensions, $cardType);
         if ($fileCombinationValidation == false) {
             abort(400, 'Illegal file combination for ' . $cardType);
         }
 
-        $fileArray = array($files);
-        foreach ($fileArray as $index=>$file) {
+        foreach ($files as $index=>$file) {
             
             $filePath = $file->store('a');
             $fileOriginalName = $file->getClientOriginalName();
@@ -246,6 +258,26 @@ class CardController extends Controller
             
         }
 
+    }
+
+    public function cardUrlHandler(array $urls, $card, $cardType, $cardContentType, $cardContentLast)
+    {
+
+        foreach ($urls as $index => $url) {
+
+            $urlInDatabse = new Url([
+                'path' => $url['path'],
+                'name' => $url['path'],
+            ]);
+
+            $urlInDatabse->save();
+
+            $card->contents()->create([
+                'content_type' => $cardContentType,
+                'content_id' => $urlInDatabse->id,
+                'content_position' => $cardContentLast + $index + 1, // 1-based position index
+            ]);
+        }
     }
 
     /**
@@ -318,16 +350,18 @@ class CardController extends Controller
             return $this->cardNoPermissionError();
         }
 
-        $fields = $request->fields;
-        // $fields = json_decode(stripslashes($fields), true);
-        // return json_decode(stripslashes($request->fields), true);
+        
+        $attributes = $request->only('title', 'settings');
+
+        // $attributes = json_decode(stripslashes($attributes), true);
+        // return json_decode(stripslashes($request->attributes), true);
         // $n = Card::where('id', $card->id)
-        //     ->update($fields);
-        $card->fill($fields);
+        //     ->update($attributes);
+        $card->fill($attributes);
 
         $card->save();
 
-        return new CardResource($card);
+        // return new CardResource($card);
     }
 
     /**
@@ -361,6 +395,9 @@ class CardController extends Controller
                 break;
             case ('todo'):
                 $card->todos()->delete();
+                break;
+            case ('url'):
+                $card->urls()->delete();
                 break;
         }
 

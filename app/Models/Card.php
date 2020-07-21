@@ -10,6 +10,7 @@ use App\Models\Content\File;
 use App\Models\Content\Todo;
 use App\Relations\FileRelation;
 use App\Relations\TodoRelation;
+use App\Relations\UrlRelation;
 use App\User;
 
 
@@ -17,7 +18,7 @@ use App\User;
 class Card extends Model
 {
 
-    protected $fillable = ['title', 'user_id', 'type', 'settings'];
+    protected $fillable = ['title', 'type', 'settings'];
 
     public function user() {
 
@@ -116,10 +117,15 @@ class Card extends Model
         
     }
 
-    public function todos () {
+    public function todos()
+    {
 
         return new TodoRelation($this);
+    }
+    public function urls()
+    {
 
+        return new UrlRelation($this);
     }
 
     public function content () {
