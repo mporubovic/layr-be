@@ -45,8 +45,8 @@ class CardController extends Controller
             abort(400, 'Consult the API docs for accepted queryMode parameters.');
         }
        
-
-        return new CardResourceCollection($cards); // TODO: this will perform SQL query with all cards for all types
+        // load('user') for signed_by in Card resource
+        return new CardResourceCollection($cards->load('user')); // TODO: this will perform SQL query with all cards for all types WITH DEEP QUERY MODE
                                                     // rather should group cards by type and loop to get ids
 
 
@@ -425,6 +425,7 @@ class CardController extends Controller
 
         switch($cardContentType) {
             case ('file'):
+                return $card->files();
                 $card->files()->delete();
                 break;
             case ('todo'):
