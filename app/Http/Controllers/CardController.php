@@ -15,6 +15,9 @@ use App\Http\Resources\CardCollection as CardResourceCollection;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Builder;
 
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Validator;
+
 class CardController extends Controller
 {
     /**
@@ -58,27 +61,32 @@ class CardController extends Controller
      */
     public function store(Request $request)
     {
+        // $validatedData = $request->validate([
+        //     'type' => ['required', Rule::in(['image', 'video'])],
+        //     'stackId' => 'required|integer'
+        // ]
+        // );
+
+        // $validator = Validator::make($request->all(), [
+        //     'type' => [
+        //         'required',
+        //         Rule::in(['image', 'video']),
+        //     ],
+        // ])->validate()->withErrors($validator, 'login');
+
+
+        return ('hello');
+        
         $user = $request->user();
 
-        $stackId = $request->stackId;
+        $stackId = $request->stackId; // TODO: ADD STACK VALIDATION
         
-        $cardTitle = $request->title ?? null;
+        $cardTitle = $request->title ?? 'Default title';
+        
         
         $cardType = $request->type;
         $cardContentType = $this->cardTypeToContentType($cardType);
-
-        if ($cardContentType == 'file' && !$request->hasFile('content')) {
-            return $this->cardNoFileUploadedError();
-        }
-        $card = $user->cards()->create(['title' => $cardTitle, 'type' => $cardType]);
-
-        // return $user->stacks()->attach($card);
-        $stack = \App\Models\Stack::with('cards')->find($stackId);
-
-        $stackCardLast = $stack->cards()->max('position');
-        $stack->cards()->attach($card, ['position' => $stackCardLast + 1]);
         
-
         
         switch($cardContentType) {
             
@@ -87,9 +95,8 @@ class CardController extends Controller
                     return $this->cardNoFileUploadedError();
                 }
                 
-                // $files = $request->file('content');
                 $files = $request->file('content');
-                $this->cardFileHandler($files, $card, $cardType, $cardContentType, 0);        
+                $cardContent = $this->cardFileHandler($files, $cardType);        
                 $eagerLoadContent = 'files';
                 break;
 
@@ -97,7 +104,7 @@ class CardController extends Controller
                 
                 $todos = $request->content;
                 // return var_dump($todos);
-                $this->cardTodoHandler($todos, $card, $cardType, $cardContentType, 0);
+                $cardContent = $this->cardTodoHandler($todos);
                 $eagerLoadContent = 'todos';
                 break;
 
@@ -105,16 +112,47 @@ class CardController extends Controller
 
                 $urls = $request->content;
                 // return var_dump($urls);
-                $this->cardUrlHandler($urls, $card, $cardType, $cardContentType, 0);
+                $cardContent = $this->cardUrlHandler($urls);
                 $eagerLoadContent = 'urls';
                 break;
         }
+
+        
+        $card = $user->cards()->create(['title' => $cardTitle, 'type' => $cardType]);
+
+        // return $user->stacks()->attach($card);
+
+
+
+        $this->cardContentHandler($cardContent, $card, $cardContentType);
+
+        $stack = \App\Models\Stack::with('cards')->find($stackId);
+
+        $stackCardLast = $stack->cards()->max('position');
+        $stack->cards()->attach($card, ['position' => $stackCardLast + 1]);
 
         return new CardResource($card->load($eagerLoadContent));
         // return CardResource::collection($card->load($eagerLoadContent));
 
 
 
+    }
+
+    public function cardContentHandler(array $cardContent, $card, $cardContentType) {
+        
+        $cardContentLast = $card->contents()->max('content_position') ?? 0;
+        $cardContentInDatabase = [];
+        foreach ($cardContent as $index=>$content) {
+            $c = $card->contents()->create([
+                        'content_type' => $cardContentType,
+                        'content_id' => $content->id,
+                        'content_position' => $cardContentLast + $index + 1, // 1-based position index
+                    ]);
+            //  array_push($cardContentInDatabase, $c);
+        }
+
+        // return $cardContentInDatabase;
+        
     }
 
     public function cardTypeToContentType($types) {
@@ -187,7 +225,7 @@ class CardController extends Controller
     }
 
 
-    public function cardFileHandler($files, $card, $cardType, $cardContentType, $cardContentLast) {
+    public function cardFileHandler($files, $cardType) {
 
             
         $fileExtensions = [];
@@ -203,9 +241,11 @@ class CardController extends Controller
 
         $fileCombinationValidation = $this->cardValidateFileCombination($fileExtensions, $cardType);
         if ($fileCombinationValidation == false) {
-            abort(400, 'Illegal file combination for ' . $cardType);
+            return abort(400, 'Illegal file combination for ' . $cardType);
         }
 
+        $filesInDatabse = [];
+        
         foreach ($files as $index=>$file) {
             
             $filePath = $file->store('a');
@@ -229,55 +269,49 @@ class CardController extends Controller
 
             $fileInDatabase->save();
 
-            
-
-            $card->contents()->create([
-                'content_type' => $cardContentType,
-                'content_id' => $fileInDatabase->id,
-                'content_position' => $cardContentLast + $index + 1, // 1-based position index
-            ]);
+            array_push($filesInDatabse, $fileInDatabase);
         }
+
+        return $filesInDatabse;
 
     }
 
-    public function cardTodoHandler(array $todos, $card, $cardType, $cardContentType, $cardContentLast) {
+    public function cardTodoHandler(array $todos) {
 
+        $todosInDatabse = [];
         foreach ($todos as $index=>$todo) {
 
-            $todoInDatabse = new Todo([
+            $todoInDatabase = new Todo([
                 'body' => $todo['body'],
             ]);
 
-            $todoInDatabse->save();
+            $todoInDatabase->save();
 
-            $card->contents()->create([
-                'content_type' => $cardContentType,
-                'content_id' => $todoInDatabse->id,
-                'content_position' => $cardContentLast + $index + 1, // 1-based position index
-            ]);
+            array_push($todosInDatabse, $todoInDatabase);
             
         }
 
+        return $todosInDatabse;
+
     }
 
-    public function cardUrlHandler(array $urls, $card, $cardType, $cardContentType, $cardContentLast)
+    public function cardUrlHandler(array $urls)
     {
 
+        $urlsInDatabase = [];
         foreach ($urls as $index => $url) {
 
-            $urlInDatabse = new Url([
+            $urlInDatabase = new Url([
                 'path' => $url['path'],
                 'name' => $url['path'],
             ]);
 
-            $urlInDatabse->save();
+            $urlInDatabase->save();
 
-            $card->contents()->create([
-                'content_type' => $cardContentType,
-                'content_id' => $urlInDatabse->id,
-                'content_position' => $cardContentLast + $index + 1, // 1-based position index
-            ]);
+            array_push($UrlsInDatabse, $urlInDatabase);
         }
+
+        return $urlsInDatabase;
     }
 
     /**
