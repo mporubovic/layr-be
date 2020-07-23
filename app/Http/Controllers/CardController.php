@@ -75,7 +75,7 @@ class CardController extends Controller
         // ])->validate()->withErrors($validator, 'login');
 
 
-        return ('hello');
+        // return ('hello');
         
         $user = $request->user();
 
