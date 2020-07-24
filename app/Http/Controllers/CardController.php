@@ -67,12 +67,16 @@ class CardController extends Controller
         // ]
         // );
 
-        // $validator = Validator::make($request->all(), [
-        //     'type' => [
-        //         'required',
-        //         Rule::in(['image', 'video']),
-        //     ],
-        // ])->validate()->withErrors($validator, 'login');
+        Validator::make($request->all(), [
+            'type' => [
+                'required',
+                Rule::in(['image', 'video', 'pdf', '3dobject', 'todo', 'url'])
+            ],
+
+            'stackId' => 'required|integer',
+            'title' => 'required',
+            
+        ])->validate();
 
 
         // return ('hello');
@@ -103,6 +107,7 @@ class CardController extends Controller
             case('todo'):
                 
                 $todos = $request->content;
+                // return $todos;
                 // return var_dump($todos);
                 $cardContent = $this->cardTodoHandler($todos);
                 $eagerLoadContent = 'todos';
