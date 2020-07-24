@@ -351,6 +351,7 @@ class CardController extends Controller
 
         // $card->load([$cardContentType, 'stacks']);
         $card->load($cardContentType);
+        // return $card;
         // return ($card->has('files')->get());
         // return Card::whereHas('files', function (Builder $query) {
         //     $query->join('card_content', 'card_content.content_id', '=', 'files.id');
@@ -420,19 +421,30 @@ class CardController extends Controller
         }
 
         $cardType = $card->type;
-
+        
         $cardContentType = implode($this->cardTypeToContentType(array($cardType)));
-
+        
+        // dd($cardContentType);
+        
+        switch($cardContentType) {
+            case('file'):
+                $card->load('files');
+                File::whereIn('id', $card->files->pluck('id'))->delete();
+        }
+        
+        
         switch($cardContentType) {
             case ('file'):
-                return $card->files();
-                $card->files()->delete();
+                $card->load('files');
+                File::whereIn('id', $card->files->pluck('id'))->delete();
                 break;
             case ('todo'):
-                $card->todos()->delete();
+                $card->load('todos');
+                Todo::whereIn('id', $card->todos->pluck('id'))->delete();
                 break;
             case ('url'):
-                $card->urls()->delete();
+                $card->load('urls');
+                Url::whereIn('id', $card->urls->pluck('id'))->delete();
                 break;
         }
 
