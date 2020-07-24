@@ -108,7 +108,67 @@ class ContentController extends Controller
      */
     public function update(Request $request, Content $content)
     {
-        //
+        $contentId = $request->contentId;
+        $cardId = $request->cardId;
+        $attributes = $request->attributes;
+
+        $user = $request->user();
+        $card = Card::with('user')->find($request->cardId);
+
+        if ($card == null) {
+            return $this->cardNotFoundError();
+        }
+
+        if ($card->user_id != $user->id) {
+            return $this->cardNoPermissionError();
+        }
+
+        // $cards = $request->user()->cards;
+
+
+        $cardType = $card->type;
+        $cardContentType = $this->cardTypeToContentType($cardType);
+
+
+        switch ($cardContentType) {
+            case ('file'):
+                
+                $filteredAttributes = $request->only('attributes.name');
+                try {
+                    $file = File::findOrFail($contentId);
+                } catch (\Exception $e) {
+                    return $e->getMessage();
+                }
+                $file->fill($filteredAttributes['attributes'])->save();
+
+
+                break;
+
+            case ('todo'):
+
+                $filteredAttributes = $request->only('attributes.body');
+                try {
+                    $todo = Todo::findOrFail($contentId);
+                } catch (\Exception $e) {
+                    return $e->getMessage();
+                }
+                $todo->fill($filteredAttributes['attributes'])->save();
+
+                break;
+
+            case ('url'):
+
+                $filteredAttributes = $request->only('attributes.path');
+                try {
+                    $url = Url::findOrFail($contentId);
+                } catch (\Exception $e) {
+                    return $e->getMessage();
+                }
+                $url->fill($filteredAttributes['attributes'])->save();
+
+                break;
+        }
+
     }
 
     /**

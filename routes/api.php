@@ -64,6 +64,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/content', 'ContentController@index');
     Route::post('/content', 'ContentController@store');
     Route::get('/content/{contentId}', 'ContentController@show');
+    
+    Route::patch('/content/{contentId}', 'ContentController@update');
 
 
 });
