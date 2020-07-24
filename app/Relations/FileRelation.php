@@ -20,7 +20,7 @@ class FileRelation extends Relation
 
     protected $card;
 
-    protected $foreignKey = 'id';
+    protected $foreignKey = 'card_id';
 
     public function __construct(Card $card)
     {
@@ -30,7 +30,7 @@ class FileRelation extends Relation
     /**
      * @inheritDoc
      */
-    public function addConstraints($order = 'desc')
+    public function addConstraints()
     {
         $this->query
             ->join(
@@ -42,7 +42,12 @@ class FileRelation extends Relation
                 'card_content.content_type',
                 '=',
                 'file'
-            )->orderBy('card_content.content_position');
+            )->where(
+                'card_content.card_id',
+                '=',
+                $this->parent->id,
+            )
+            ->orderBy('card_content.content_position');
     }
 
     /**
@@ -84,7 +89,8 @@ class FileRelation extends Relation
             $card->setRelation(
                 $relation,
                 $files->filter(function (File $file) use ($card) {
-                    return $file->card_id === $card->id;  // `card_id` came with the `join` on `card_content`
+                    return $file->card_id !== $card->id;  // `card_id` came with the `join` on `card_content`
+                    // return $
                 })
             );
         }
@@ -96,9 +102,9 @@ class FileRelation extends Relation
      * @inheritDoc
      */
     
-    public function getExistenceCompareKey() {
-        return 'card_content.card_id';
-    }
+    // public function getExistenceCompareKey() {
+    //     return 'card_content.card_id';
+    // }
 
 
     // public function getQualifiedForeignKeyName()
