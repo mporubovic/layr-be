@@ -313,7 +313,7 @@ class CardController extends Controller
 
             $urlInDatabase->save();
 
-            array_push($UrlsInDatabse, $urlInDatabase);
+            array_push($urlsInDatabse, $urlInDatabase);
         }
 
         return $urlsInDatabase;
