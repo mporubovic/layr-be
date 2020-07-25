@@ -80,19 +80,31 @@ class Card extends JsonResource
             case 'video':
             case 'eps':
             case 'pdf':
-            // case 'file':
-
-                return FileResource::collection($this->whenLoaded('files'));
-
+                
+                if ($this->whenLoaded('files') === null) {
+                    return ('**FILE MISSING**');
+                } else {
+                    return FileResource::collection($this->whenLoaded('files'));
+                }
+                
 
 
             case 'todo':
 
-                return TodoResource::collection($this->whenLoaded('todos'));
+                if ($this->whenLoaded('todos') === null) {
+                    return ('**TODO MISSING**');
+                } else {
+                    return TodoResource::collection($this->whenLoaded('todos'));
+                }
+                
 
             case 'url':
 
-                return UrlResource::collection($this->whenLoaded('urls'));
+                if ($this->whenLoaded('urls') === null) {
+                    return ('**URL MISSING**');
+                } else {
+                    return UrlResource::collection($this->whenLoaded('urls'));
+                }
 
 
 
