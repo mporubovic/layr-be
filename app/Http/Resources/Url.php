@@ -16,6 +16,7 @@ class Url extends JsonResource
     {
         return [
             'url' => [
+                'contentId' => $this->id,
                 'path' => $this->path,
                 'name' => $this->name,
                 'position' => $this->content_position,

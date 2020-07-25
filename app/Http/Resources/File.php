@@ -28,6 +28,7 @@ class File extends JsonResource
             ],
 
             'file' => [
+                'contentId' => $this->id,
                 'url' => $this->getFileUrl($this->path),
                 'position' => $this->content_position,
                 'name' => $this->name,
