@@ -71,7 +71,13 @@ class BoardController extends Controller
 
         // return new BoardResource($board->load('stacks.cards.files'));
         // return new BoardResource($board->load('stacks.cards.files'));
-        return new BoardResource($board->load(['stacks.cards.files', 'stacks.cards.todos', 'stacks.cards.user']));
+        return new BoardResource($board->load(['stacks.cards.files', 
+                                                'stacks.cards.todos', 
+                                                'stacks.cards.user', 
+                                                'stacks.cards.urls', 
+                                                'stacks.cards.embeds',
+                                                'stacks.cards.texts',
+                                                ]));
         // return new BoardResource($board->load(['stacks.cards.files', 'stacks.cards.todos']));
     
     }

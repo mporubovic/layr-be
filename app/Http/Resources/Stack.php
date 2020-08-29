@@ -20,7 +20,7 @@ class Stack extends JsonResource
     {
         // return parent::toArray($request);
         return [
-            'attributes' => [
+            'info' => [
                 'id' => $this->id,
                 'title' => $this->title,
             ],

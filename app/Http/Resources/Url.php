@@ -15,8 +15,9 @@ class Url extends JsonResource
     public function toArray($request)
     {
         return [
+            'id' => $this->id,
+            
             'url' => [
-                'contentId' => $this->id,
                 'path' => $this->path,
                 'name' => $this->name,
                 'position' => $this->content_position,

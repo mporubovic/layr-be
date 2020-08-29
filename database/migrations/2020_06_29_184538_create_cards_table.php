@@ -20,8 +20,14 @@ class CreateCardsTable extends Migration
             
             $table->text('title');
             $table->text('type');
+            $table->text('program');
             
-            $table->json('settings')->nullable;
+            $table->smallInteger('x');
+            $table->smallInteger('y');
+            $table->smallInteger('width');
+            $table->smallInteger('height');
+            
+            $table->json('settings')->nullable();
 
             $table->timestamps();
             

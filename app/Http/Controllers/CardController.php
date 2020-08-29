@@ -72,11 +72,15 @@ class CardController extends Controller
         Validator::make($request->all(), [
             'type' => [
                 'required',
-                Rule::in(['image', 'video', 'pdf', '3dobject', 'todo', 'url'])
+                Rule::in(['image', 'video', 'pdf', '3dobject', 'todo', 'url', 'embed', 'text'])
             ],
+            'program' => 'required',
 
             'stackId' => 'required|integer',
             'title' => 'required',
+            'content' => 'sometimes|array',
+            'open' => 'sometimes|boolean',
+            // 'dimensions' => 'required'
             
         ])->validate();
 
@@ -84,61 +88,105 @@ class CardController extends Controller
         // return ('hello');
         
         $user = $request->user();
-
+        // return ($request);
         $stackId = $request->stackId; // TODO: ADD STACK VALIDATION
-        
-        $cardTitle = $request->title ?? 'Default title';
-        
-        
+        $cardTitle = $request->title ?? 'New Card';
         $cardType = $request->type;
-        $cardContentType = $this->cardTypeToContentType($cardType);
+        $content = $request->content ?? null;
+        $cardOpen = (int)$request->open ?? 0;
+        $program = $request->program;
+        $dimensionX = $request->input('dimensions.x');
+        $dimensionY = $request->input('dimensions.y');
+        $dimensionWidth = $request->input('dimensions.width');
+        $dimensionHeight = $request->input('dimensions.height');
+
+        $card = $user->cards()->create([
+                                        'title' => $cardTitle, 
+                                        'type' => $cardType, 
+                                        'program' => $program,
+                                        'x' => $dimensionX,
+                                        'y' => $dimensionY,
+                                        'width' => $dimensionWidth,
+                                        'height' => $dimensionHeight,
+                                        ]);
         
-        
-        switch($cardContentType) {
+        if ($content) {
+            $cardContentType = $this->cardTypeToContentType($cardType);
             
-            case('file'):
-                if (!$request->hasFile('content')) {
-                    return $this->cardNoFileUploadedError();
-                }
+            
+            switch($cardContentType) {
                 
-                $files = $request->file('content');
-                $cardContent = $this->cardFileHandler($files, $cardType);        
-                $eagerLoadContent = 'files';
-                break;
+                case('file'):
+                    if (!$request->hasFile('content')) {
+                        return $this->cardNoFileUploadedError();
+                    }
+                    
+                    $files = $request->file('content');
+                    $cardContent = $this->cardFileHandler($files, $cardType);        
+                    $eagerLoadContent = 'files';
+                    break;
 
-            case('todo'):
+                case('todo'):
+                    
+                    $todos = $request->content;
+                    // return $todos;
+                    // return var_dump($todos);
+                    // return $todos;
+                    $cardContent = $this->cardTodoHandler($todos);
+                    $eagerLoadContent = 'todos';
+                    break;
+
+                case ('url'):
+
+                    $urls = $request->content;
+                    // return var_dump($urls);
+                    $cardContent = $this->cardUrlHandler($urls);
+                    $eagerLoadContent = 'urls';
+                    break;
+
+                case ('embed'):
+
+                    $embeds = $request->content;
+                    // return var_dump($urls);
+                    $cardContent = $this->cardEmbedHandler($embeds);
+                    $eagerLoadContent = 'embeds';
+                    break;
                 
-                $todos = $request->content;
-                // return $todos;
-                // return var_dump($todos);
-                $cardContent = $this->cardTodoHandler($todos);
-                $eagerLoadContent = 'todos';
-                break;
+                case ('text'):
 
-            case ('url'):
+                    $text = $request->content;
+                    // return var_dump($urls);
+                    $cardContent = $this->cardTextHandler($text);
+                    $eagerLoadContent = 'texts';
+                    break;
+            }
 
-                $urls = $request->content;
-                // return var_dump($urls);
-                $cardContent = $this->cardUrlHandler($urls);
-                $eagerLoadContent = 'urls';
-                break;
+            // return $user->stacks()->attach($card);
+
+            // return ([$content, gettype($content)]);
+            $this->cardContentHandler($cardContent, $card, $cardContentType);
         }
 
-        
-        $card = $user->cards()->create(['title' => $cardTitle, 'type' => $cardType]);
-
-        // return $user->stacks()->attach($card);
-
-
-
-        $this->cardContentHandler($cardContent, $card, $cardContentType);
-
         $stack = \App\Models\Stack::with('cards')->find($stackId);
+        // return $stack;
 
         $stackCardLast = $stack->cards()->max('position');
-        $stack->cards()->attach($card, ['position' => $stackCardLast + 1]);
+        $stack->cards()->attach($card, ['position' => $stackCardLast + 1, 'open' => $cardOpen]);
+        
+        $cardWithPivot = $stack->cards()->find($card->id);
+        // return $cardWithPivot;
+        // $card->fakePivot['position'] = $stackCardLast + 1;
+        // return $card;
 
-        return new CardResource($card->load($eagerLoadContent));
+        if (isset($eagerLoadContent)) {
+            // return $eagerLoadContent;
+            return new CardResource($cardWithPivot->load($eagerLoadContent));
+        } else {
+            return new CardResource($cardWithPivot);
+
+            // return new CardResource($card->load('stacks'));
+        }
+        
         // return CardResource::collection($card->load($eagerLoadContent));
 
 
@@ -257,11 +305,11 @@ class CardController extends Controller
         
         // dd($cardContentType);
         
-        switch($cardContentType) {
-            case('file'):
-                $card->load('files');
-                File::whereIn('id', $card->files->pluck('id'))->delete();
-        }
+        // switch($cardContentType) {
+        //     case('file'):
+        //         $card->load('files');
+        //         File::whereIn('id', $card->files->pluck('id'))->delete();
+        // }
         
         
         switch($cardContentType) {

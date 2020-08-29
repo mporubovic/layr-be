@@ -9,6 +9,8 @@ use App\Models\Card;
 use App\Models\Content\File;
 use App\Models\Content\Todo;
 use App\Models\Content\Url;
+use App\Models\Content\Embed;
+use App\Models\Content\Text;
 use App\Models\Content;
 
 use App\Http\Resources\Card as CardResource;
@@ -86,9 +88,19 @@ class ContentController extends Controller
                 $cardContent = $this->cardUrlHandler($urls);
                 $eagerLoadContent = 'urls';
                 break;
+
+            case ('embed'):
+
+                $embeds = $request->content;
+                // return var_dump($embeds);
+                $cardContent = $this->cardEmbedHandler($embeds);
+                $eagerLoadContent = 'embeds';
+                break;
         }
 
         $this->cardContentHandler($cardContent, $card, $cardContentType);
+
+        return $cardContent;
 
         return new CardResource($card->load($eagerLoadContent));
     }
@@ -116,7 +128,7 @@ class ContentController extends Controller
     {
         $contentId = $request->contentId;
         $cardId = $request->cardId;
-        $attributes = $request->attributes;
+        // $attributes = $request->attributes;
 
         $user = $request->user();
         $card = Card::with('user')->find($request->cardId);
@@ -152,25 +164,51 @@ class ContentController extends Controller
 
             case ('todo'):
 
-                $filteredAttributes = $request->only('attributes.body');
+                $filteredAttributes = $request->only('content.todo.body');
                 try {
                     $todo = Todo::findOrFail($contentId);
                 } catch (\Exception $e) {
                     return $e->getMessage();
                 }
-                $todo->fill($filteredAttributes['attributes'])->save();
+                $todo->fill($filteredAttributes['content']['todo'])->save();
 
                 break;
 
             case ('url'):
 
-                $filteredAttributes = $request->only('attributes.path');
+                $filteredAttributes = $request->only('content.url.path');
                 try {
                     $url = Url::findOrFail($contentId);
                 } catch (\Exception $e) {
                     return $e->getMessage();
                 }
-                $url->fill($filteredAttributes['attributes'])->save();
+                $url->fill($filteredAttributes['content']['url'])->save();
+
+                break;
+
+
+            case ('embed'):
+
+                $filteredAttributes = $request->only('content.embed.path');
+                try {
+                    $embed = Embed::findOrFail($contentId);
+                } catch (\Exception $e) {
+                    return $e->getMessage();
+                }
+                $embed->fill($filteredAttributes['content']['embed'])->save();
+
+                break;
+                
+                
+            case ('text'):
+
+                $filteredAttributes = $request->only('content.text');
+                try {
+                    $text = Text::findOrFail($contentId);
+                } catch (\Exception $e) {
+                    return $e->getMessage();
+                }
+                $text->fill($filteredAttributes['content'])->save();
 
                 break;
         }
@@ -183,9 +221,76 @@ class ContentController extends Controller
      * @param  \App\Content  $content
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Content $content)
+    public function destroy(Request $request)
     {
-        //
+        $card = Card::find($request->cardId);
+        // return $request->cardId;
+
+        if ($card == null) {
+            return $this->cardNotFoundError();
+        }
+
+        $user = $request->user();
+
+        if ($card->user_id != $user->id) {
+            return $this->cardNoPermissionError();
+        }
+
+        $cardType = $card->type;
+
+        $cardContentType = implode($this->cardTypeToContentType(array($cardType)));
+        $contentId = $request->contentId;
+        // dd($cardContentType);
+
+        // switch($cardContentType) {
+        //     case('file'):
+        //         $card->load('files');
+        //         File::whereIn('id', $card->files->pluck('id'))->delete();
+        // }
+
+
+        switch ($cardContentType) {
+            case ('file'):
+                $card->load('files');
+                // File::whereIn('id', $contentId)->delete();
+                File::destroy($contentId);
+                break;
+            case ('todo'):
+                // $card->load('todos');
+                $todo = $card->todos->find($contentId);
+                $todoPos = $todo['content_position'];
+                $todosAboveIds = $card->todos->filter(function ($value) use ($todoPos) {
+                    return $value['content_position'] > $todoPos;
+                })->pluck('content_id');
+                // Todo::destroy($contentId);
+                $todo->delete();
+                $card->contents()->whereIn('content_id', $todosAboveIds)->decrement('content_position');
+                // $card->content()->whereIn('content_id', $todosAboveIds)->decrement('content_position');
+                break;
+            case ('url'):
+                $card->load('urls');
+                // Url::whereIn('id', $contentId)->delete();
+                Url::destroy($contentId);
+                break;
+
+            case ('embed'):
+                $card->load('embeds');
+                // Url::whereIn('id', $contentId)->delete();
+                Embed::destroy($contentId);
+                break;
+
+            case ('text'):
+                $card->load('texts');
+                // Url::whereIn('id', $contentId)->delete();
+                Text::destroy($contentId);
+                break;
+        }
+
+
+        // $card->contents()->delete(); // card_content pivot
+        $card->contents()->where('content_id', $contentId)->delete();
+        // $contentPivot->delete(); // card_content pivot
+        return;
     }
 
 

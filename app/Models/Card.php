@@ -11,6 +11,8 @@ use App\Models\Content\Todo;
 use App\Relations\FileRelation;
 use App\Relations\TodoRelation;
 use App\Relations\UrlRelation;
+use App\Relations\EmbedRelation;
+use App\Relations\TextRelation;
 use App\User;
 
 
@@ -18,7 +20,7 @@ use App\User;
 class Card extends Model
 {
 
-    protected $fillable = ['title', 'type', 'settings'];
+    protected $fillable = ['title', 'type', 'settings', 'program', 'x', 'y', 'width', 'height'];
 
     public function user() {
 
@@ -35,7 +37,7 @@ class Card extends Model
 
     public function stacks() {
 
-        return $this->belongsToMany(Stack::class);
+        return $this->belongsToMany(Stack::class)->withPivot('position', 'open');
 
     }
 
@@ -126,6 +128,17 @@ class Card extends Model
     {
 
         return new UrlRelation($this);
+    }
+
+    public function embeds()
+    {
+
+        return new EmbedRelation($this);
+    }
+    public function texts()
+    {
+
+        return new TextRelation($this);
     }
 
     public function content () {

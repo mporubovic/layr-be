@@ -5,24 +5,27 @@ namespace App\Traits;
 use App\Models\Content\File;
 use App\Models\Content\Todo;
 use App\Models\Content\Url;
+use App\Models\Content\Embed;
+use App\Models\Content\Text;
 
 trait CardTraits
 {
     public function cardContentHandler(array $cardContent, $card, $cardContentType)
     {
 
-        $cardContentLast = $card->contents()->max('content_position') ?? 0;
+        $cardContentLast = $card->contents()->max('content_position');
+        $offset = $cardContentLast === null ? 0 : $cardContentLast + 1;
         $cardContentInDatabase = [];
         foreach ($cardContent as $index => $content) {
             $c = $card->contents()->create([
                 'content_type' => $cardContentType,
                 'content_id' => $content->id,
-                'content_position' => $cardContentLast + $index + 1, // 1-based position index
+                'content_position' => $offset + $index,
             ]);
-            //  array_push($cardContentInDatabase, $c);
+            array_push($cardContentInDatabase, $c);
         }
 
-        // return $cardContentInDatabase;
+        return $cardContentInDatabase;
 
     }
 
@@ -35,7 +38,9 @@ trait CardTraits
             'pdf' => 'file',
             '3dobject' => 'file',
 
-            'text' => 'richtext',
+            'text' => 'text',
+
+            'embed' => 'embed',
 
             'word' => 'iframe',
             'powerpoint' => 'iframe',
@@ -116,6 +121,10 @@ trait CardTraits
         foreach ($files as $index => $file) {
 
             $filePath = $file->store('a');
+            $publicUrl = env('APP_PUBLIC_URL');
+            $storagePath = '/storage';
+            $filePublicUrl = $publicUrl . $storagePath . '/' . $filePath;
+
             $fileOriginalName = $file->getClientOriginalName();
             $fileExtension = $file->extension();
             $fileSize = $file->getSize();
@@ -126,7 +135,7 @@ trait CardTraits
 
             $fileInDatabase = new File([
                 'extension' => $fileExtension,
-                'path' => $filePath,
+                'path' => $filePublicUrl,
                 'size' => $fileSize,
                 'name' => $fileNameSplit,
                 'original_name' => $fileOriginalName,
@@ -149,7 +158,7 @@ trait CardTraits
         foreach ($todos as $index => $todo) {
 
             $todoInDatabase = new Todo([
-                'body' => $todo['body'],
+                'body' => $todo['todo']['body'],
             ]);
 
             $todoInDatabase->save();
@@ -167,8 +176,8 @@ trait CardTraits
         foreach ($urls as $index => $url) {
 
             $urlInDatabase = new Url([
-                'path' => $url['path'],
-                'name' => $url['path'],
+                'path' => $url['url']['path'],
+                // 'name' => $url['url']['path'],
             ]);
 
             $urlInDatabase->save();
@@ -177,6 +186,37 @@ trait CardTraits
         }
 
         return $urlsInDatabase;
+    }
+
+    public function cardEmbedHandler(array $embeds)
+    {
+
+        $embedsInDatabase = [];
+        foreach ($embeds as $index => $embed) {
+
+            $embedInDatabase = new Embed([
+                'path' => $embed['embed']['path'],
+                // 'name' => $embed['path'],
+            ]);
+
+            $embedInDatabase->save();
+
+            array_push($embedsInDatabase, $embedInDatabase);
+        }
+
+        return $embedsInDatabase;
+    }
+    
+    public function cardTextHandler($text)
+    {
+            $textInArray = [];
+            $textInDatabase = new Text([
+                'text' => json_encode($text[0]['text']),
+            ]);
+
+            $textInDatabase->save();
+            array_push($textInArray, $textInDatabase);
+        return $textInArray;
     }
 
     public function cardAssignInterpreter($extension)

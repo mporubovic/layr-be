@@ -1,5 +1,6 @@
 <?php
 
+// use App\Http\Controllers\Services\ServiceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -37,35 +38,23 @@ Route::middleware('auth:sanctum')->group(function () {
     
     Route::get('/boards', 'BoardController@index');
     Route::get('/boards/{boardId}', 'BoardController@show');
-
     Route::post('/boards', 'BoardController@store');
-   
     Route::patch('/boards/{boardId}', 'BoardController@update');
-    
     Route::delete('/boards/{boardId}', 'BoardController@destroy');
-
-
-});
-
-Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/cards', 'CardController@index');
     Route::post('/cards', 'CardController@store');
     Route::get('/cards/{cardId}', 'CardController@show');
-
     Route::patch('/cards/{cardId}', 'CardController@update');
     Route::delete('/cards/{cardId}', 'CardController@destroy');
-
-
-});
-
-Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/content', 'ContentController@index');
     Route::post('/content', 'ContentController@store');
     Route::get('/content/{contentId}', 'ContentController@show');
-    
     Route::patch('/content/{contentId}', 'ContentController@update');
+    Route::delete('/content/{contentId}', 'ContentController@destroy');
+
+    Route::get('/services/sitetitle/{site}', 'Services\ServiceController@siteTitle')->where('site', '.*');
 
 
 });

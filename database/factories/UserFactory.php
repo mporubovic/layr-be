@@ -25,7 +25,7 @@ $factory->define(User::class, function (Faker $faker) {
         'email_verified_at' => now(),
         'subdomain' => $faker->word,
         // 'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-        'password' => 'useruser', // password
+        'password' => '$2y$10$064p8PPDiNqx4iHZTX9CkeUjmBAeFctot20OAYluTE00IrP9sxl6q', // useruser
         'remember_token' => Str::random(10),
     ];
 });

@@ -20,6 +20,7 @@ class CreateCardStackTable extends Migration
             $table->unsignedBigInteger('stack_id');
 
             $table->unsignedInteger('position');
+            $table->boolean('open');
             
             $table->timestamps();
             

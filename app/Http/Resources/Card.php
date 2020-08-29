@@ -7,6 +7,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\File as FileResource;
 use App\Http\Resources\Todo as TodoResource;
 use App\Http\Resources\Url as UrlResource;
+use App\Http\Resources\Embed as EmbedResource;
+use App\Http\Resources\Text as TextResource;
 // use App\Http\Resources\Content as ContentResource;
 // use App\Http\Resources\ContentCollection as ContentResourceCollection;
 
@@ -64,9 +66,21 @@ class Card extends JsonResource
 
             // 'content' => FileResource::collection($this->whenLoaded('files')),
             // 'content' => TodoResource::collection($this->whenLoaded('todos')),
-            'content' => $this->cardGetContentResource($this->type),
-                
+            
 
+            'display' => [
+                'program' => $this->program,
+                'position' => $this->pivot->position,
+                'open' => $this->pivot->open,
+                'dimensions' => [
+                    'x' => $this->x,
+                    'y' => $this->y,
+                    'width' => $this->width,
+                    'height' => $this->height,
+                ],
+            ],
+                
+            'content' => $this->cardGetContentResource($this->type),
             
         ];
             
@@ -82,17 +96,18 @@ class Card extends JsonResource
             case 'pdf':
                 
                 if ($this->whenLoaded('files') === null) {
-                    return ('**FILE MISSING**');
+                    return;
                 } else {
                     return FileResource::collection($this->whenLoaded('files'));
                 }
+                
                 
 
 
             case 'todo':
 
                 if ($this->whenLoaded('todos') === null) {
-                    return ('**TODO MISSING**');
+                    return;
                 } else {
                     return TodoResource::collection($this->whenLoaded('todos'));
                 }
@@ -101,11 +116,28 @@ class Card extends JsonResource
             case 'url':
 
                 if ($this->whenLoaded('urls') === null) {
-                    return ('**URL MISSING**');
+                    return;
                 } else {
                     return UrlResource::collection($this->whenLoaded('urls'));
                 }
 
+            case 'embed':
+
+                if ($this->whenLoaded('embeds') === null) {
+                    return;
+                } else {
+                    return EmbedResource::collection($this->whenLoaded('embeds'));
+                }
+            
+            case 'text':
+
+                if ($this->whenLoaded('texts') === null) {
+                    return;
+                } else {
+                    // return "hello";
+                    // return TextResource::collection($this->whenLoaded('texts'));
+                    return TextResource::collection($this->whenLoaded('texts'));
+                }
 
 
             case 'doc':
@@ -141,7 +173,7 @@ class Card extends JsonResource
 
             default:
 
-                return 'other';
+                return '***unsupported card type***';
 
 
 

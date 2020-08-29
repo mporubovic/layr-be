@@ -16,8 +16,8 @@ class Todo extends JsonResource
     {
         // return parent::toArray($request);
         return [
+            'id' => $this->id,
             'todo' => [
-                'contentId' => $this->id,
                 'body' => $this->body,
                 'position' => $this->content_position,
                 'completed_at' => $this->completed_at,
