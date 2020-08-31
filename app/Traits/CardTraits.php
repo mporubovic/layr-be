@@ -41,6 +41,7 @@ trait CardTraits
             'text' => 'text',
 
             'embed' => 'embed',
+            'youtube' => 'embed',
 
             'word' => 'iframe',
             'powerpoint' => 'iframe',

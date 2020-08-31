@@ -70,17 +70,24 @@ class Card extends JsonResource
 
             'display' => [
                 'program' => $this->program,
-                'position' => $this->pivot->position,
-                'open' => $this->pivot->open,
-                'dimensions' => [
-                    'x' => $this->x,
-                    'y' => $this->y,
-                    'width' => $this->width,
-                    'height' => $this->height,
-                ],
+                // 'position' => $this->pivot->position,
+                'position' => $this->when($this->pivot, function () {
+                    return $this->pivot->position;
+                }),
+                'open' => $this->when($this->pivot, function () {
+                    return $this->pivot->open;
+                }),
+                // 'dimensions' => [
+                //     'x' => $this->x,
+                //     'y' => $this->y,
+                //     'width' => $this->width,
+                //     'height' => $this->height,
+                // ],
             ],
                 
             'content' => $this->cardGetContentResource($this->type),
+            
+            'settings' => $this->settings,
             
         ];
             
@@ -121,10 +128,12 @@ class Card extends JsonResource
                     return UrlResource::collection($this->whenLoaded('urls'));
                 }
 
-            case 'embed':
+            case 'youtube':
 
                 if ($this->whenLoaded('embeds') === null) {
-                    return;
+                    $arr = array();
+                    // return "hello";
+                    return $arr;
                 } else {
                     return EmbedResource::collection($this->whenLoaded('embeds'));
                 }

@@ -23,7 +23,7 @@ class Stack extends Model
 
     public function cards() {
         
-        return $this->belongsToMany('App\Models\Card')->withPivot('position', 'open');
+        return $this->belongsToMany('App\Models\Card')->withPivot('position', 'open')->withTimestamps();;
 
     }
 }

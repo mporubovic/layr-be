@@ -22,6 +22,8 @@ class Card extends Model
 
     protected $fillable = ['title', 'type', 'settings', 'program', 'x', 'y', 'width', 'height'];
 
+    protected $casts = ['settings' => 'json'];
+
     public function user() {
 
         return $this->belongsTo(User::class);
@@ -37,7 +39,7 @@ class Card extends Model
 
     public function stacks() {
 
-        return $this->belongsToMany(Stack::class)->withPivot('position', 'open');
+        return $this->belongsToMany(Stack::class)->withPivot('position', 'open')->withTimestamps();
 
     }
 
@@ -163,4 +165,5 @@ class Card extends Model
 
     }
 
+    
 }

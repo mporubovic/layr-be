@@ -21,6 +21,9 @@ use Illuminate\Support\Facades\Validator;
 use App\Traits\CardTraits;
 use App\Traits\CardErrors;
 
+
+use Illuminate\Support\Arr;
+
 class CardController extends Controller
 {
 
@@ -72,15 +75,15 @@ class CardController extends Controller
         Validator::make($request->all(), [
             'type' => [
                 'required',
-                Rule::in(['image', 'video', 'pdf', '3dobject', 'todo', 'url', 'embed', 'text'])
+                Rule::in(['image', 'video', 'pdf', '3dobject', 'todo', 'url', 'embed', 'text', 'youtube'])
             ],
-            'program' => 'required',
+            // 'program' => 'required',
 
             'stackId' => 'required|integer',
             'title' => 'required',
             'content' => 'sometimes|array',
             'open' => 'sometimes|boolean',
-            // 'dimensions' => 'required'
+            'settings' => 'required|json'
             
         ])->validate();
 
@@ -94,20 +97,13 @@ class CardController extends Controller
         $cardType = $request->type;
         $content = $request->content ?? null;
         $cardOpen = (int)$request->open ?? 0;
-        $program = $request->program;
-        $dimensionX = $request->input('dimensions.x');
-        $dimensionY = $request->input('dimensions.y');
-        $dimensionWidth = $request->input('dimensions.width');
-        $dimensionHeight = $request->input('dimensions.height');
+        $requestSettings = Arr::only(json_decode($request->settings, true), ['dimensions', 'program', 'styling']);
+
 
         $card = $user->cards()->create([
                                         'title' => $cardTitle, 
                                         'type' => $cardType, 
-                                        'program' => $program,
-                                        'x' => $dimensionX,
-                                        'y' => $dimensionY,
-                                        'width' => $dimensionWidth,
-                                        'height' => $dimensionHeight,
+                                        'settings' => $requestSettings
                                         ]);
         
         if ($content) {
@@ -171,7 +167,8 @@ class CardController extends Controller
         // return $stack;
 
         $stackCardLast = $stack->cards()->max('position');
-        $stack->cards()->attach($card, ['position' => $stackCardLast + 1, 'open' => $cardOpen]);
+        $offset = $stackCardLast === null ? 0 : $stackCardLast + 1;
+        $stack->cards()->attach($card, ['position' => $offset, 'open' => $cardOpen]);
         
         $cardWithPivot = $stack->cards()->find($card->id);
         // return $cardWithPivot;
@@ -222,7 +219,7 @@ class CardController extends Controller
         
         $cardContentType = array_values(preg_filter('/$/', 's', $cardContentType));
 
-        $eagerLoadRelations = array_push($cardContentType, 'stacks');
+        // $eagerLoadRelations = array_push($cardContentType, 'stacks');
 
         // return [1 => $cardContentType];
         // // return $cardContentType;
@@ -265,15 +262,59 @@ class CardController extends Controller
         }
 
         
-        $attributes = $request->only('title', 'settings');
+        $attributes = $request->only('title');
+        
+        $updatedProperties = $attributes;
+        
+        if ($request->settings) {
+            $requestSettings = Arr::only($request->settings, ['dimensions', 'program', 'styling']);
+            // return [$card->settings, $requestSettings];
+            $originalSettings = $card->settings;
+            $settings = array_merge_recursive_distinct($originalSettings, $requestSettings);
+            $updatedProperties = $updatedProperties + compact("settings");
 
+        }
+
+        if(isset($request->open)) {
+            $cardOpen = (int)$request->open;
+            $stackId = $card->stacks[0]->id; 
+
+            $card->stacks()->updateExistingPivot($stackId, ['open' => $cardOpen]);
+        }
+        // $requestSettings = Arr::only($request->settings, ['dimensions', 'program', 'styling']);
+        // return [$card->settings, $requestSettings];
+        // $originalSettings = $card->settings;
+        // $settings = array_merge_recursive_distinct($originalSettings, $requestSettings);
+        // return $settings;
+        // return [$card->settings, $requestSettings, $settings];
+        // return compact("settings", "attributes");
+        // $updatedProperties = array($attributes, compact('settings'));
+        // $updatedProperties = compact("settings") + $attributes;
+        // array_push($updatedProperties, array_values($attributes));
+        // return $updatedProperties;
+        // $array1 = $card->settings;
+        // $array2 = $requestSettings;
+        // $merged = $array1;
+
+        // foreach ($array2 as $key => &$value) {
+        //     if (is_array($value) && isset($merged[$key]) && is_array($merged[$key])) {
+        //         $merged[$key] = array_merge_recursive_distinct($merged[$key], $value);
+        //     } else {
+        //         $merged[$key] = $value;
+        //     }
+        // }
+
+        // return $merged;
         // $attributes = json_decode(stripslashes($attributes), true);
         // return json_decode(stripslashes($request->attributes), true);
         // $n = Card::where('id', $card->id)
         //     ->update($attributes);
-        $card->fill($attributes);
+        // return [$updatedProperties];
+        // return [$attributes, compact('settings')];
+        // if ($attributes) {
+            $card->fill($updatedProperties)->save();
+        // }
 
-        $card->save();
 
         // return new CardResource($card);
     }
