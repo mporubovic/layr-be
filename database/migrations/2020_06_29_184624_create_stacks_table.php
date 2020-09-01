@@ -16,7 +16,7 @@ class CreateStacksTable extends Migration
         Schema::create('stacks', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->text('title');
+            $table->text('title')->nullable();
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

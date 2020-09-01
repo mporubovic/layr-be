@@ -268,9 +268,13 @@ class ContentController extends Controller
                 // $card->content()->whereIn('content_id', $todosAboveIds)->decrement('content_position');
                 break;
             case ('url'):
-                $card->load('urls');
-                // Url::whereIn('id', $contentId)->delete();
-                Url::destroy($contentId);
+                $url = $card->urls->find($contentId);
+                $urlPos = $url['content_position'];
+                $urlsAboveIds = $card->urls->filter(function ($value) use ($urlPos) {
+                    return $value['content_position'] > $urlPos;
+                })->pluck('content_id');
+                $url->delete();
+                $card->contents()->whereIn('content_id', $urlsAboveIds)->decrement('content_position');
                 break;
 
             case ('embed'):

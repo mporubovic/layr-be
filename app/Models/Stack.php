@@ -17,13 +17,13 @@ class Stack extends Model
 
     public function board() {
         
-        return $this->belongsToMany('App\Models\Board');
+        return $this->belongsToMany('App\Models\Board')->withTimestamps();
 
     }
 
     public function cards() {
         
-        return $this->belongsToMany('App\Models\Card')->withPivot('position', 'open')->withTimestamps();;
+        return $this->belongsToMany('App\Models\Card')->withPivot('position', 'open')->withTimestamps();
 
     }
 }

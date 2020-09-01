@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Board extends Model
 {
-    protected $fillable = ['title', 'user_id'];
+    protected $fillable = ['title'];
 
-    public function path() {
-        return route('boards.show', $this);
-    }
+    // public function path() {
+    //     return route('boards.show', $this);
+    // }
 
     public function user() {
 
@@ -21,7 +21,7 @@ class Board extends Model
 
     public function stacks() {
 
-        return $this->belongsToMany('App\Models\Stack');
+        return $this->belongsToMany('App\Models\Stack')->withTimestamps();
 
     }
 }

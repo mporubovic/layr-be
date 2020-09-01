@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Board;
+use App\Models\Stack;
 use Illuminate\Http\Request;
 
 use App\Http\Resources\Board as BoardResource;
@@ -83,16 +84,6 @@ class BoardController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -100,7 +91,7 @@ class BoardController extends Controller
      */
     public function store(Request $request)
     {
-    
+        $user = $request->user();
         
         // $board = new Board;
         // $board->title = request('title');
@@ -114,17 +105,24 @@ class BoardController extends Controller
         
         // return [$request->title, $request->user()];
         
-        $board = Board::create([
-            // 'title' => $request->title,
-            'title' => $request->title,
-            'user_id' => $request->user()->id,
-        ]);
+        $board = $user->boards()->create(['title' => $request->title]);
+        // $board = Board::create([
+        //     // 'title' => $request->title,
+        //     'title' => $request->title,
+        //     'user_id' => $request->user()->id,
+        // ]);
 
+        $stack = $user->stacks()->create();
+
+
+
+        $board->stacks()->attach($stack);
         // Board::create($this->validateBoard());
 
         // return redirect(route('boards.index'));
 
-        return $board;
+        // return $board;
+        return new BoardResource($board);
     }
 
 

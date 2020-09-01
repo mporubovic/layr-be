@@ -6,6 +6,8 @@ use App\Models\Card;
 use App\Models\Content\File;
 use App\Models\Content\Todo;
 use App\Models\Content\Url;
+use App\Models\Content\Text;
+use App\Models\Content\Embed;
 use App\Models\Content;
 use Illuminate\Http\Request;
 
@@ -328,7 +330,8 @@ class CardController extends Controller
     public function destroy(Request $request)
     {
         
-        $card = Card::find($request->cardId);
+        $cardId = $request->cardId;
+        $card = Card::find($cardId);
 
         if ($card == null) {
             return $this->cardNotFoundError();
@@ -356,20 +359,37 @@ class CardController extends Controller
         switch($cardContentType) {
             case ('file'):
                 $card->load('files');
-                File::whereIn('id', $card->files->pluck('id'))->delete();
+                if ($card->files) File::whereIn('id', $card->files->pluck('id'))->delete();
                 break;
             case ('todo'):
                 $card->load('todos');
-                Todo::whereIn('id', $card->todos->pluck('id'))->delete();
+                if ($card->todos) Todo::whereIn('id', $card->todos->pluck('id'))->delete();
                 break;
             case ('url'):
                 $card->load('urls');
-                Url::whereIn('id', $card->urls->pluck('id'))->delete();
+                if ($card->urls) Url::whereIn('id', $card->urls->pluck('id'))->delete();
+                break;
+            case ('embed'):
+                $card->load('embeds');
+                if ($card->embeds) Embed::whereIn('id', $card->embeds->pluck('id'))->delete();
+                break;
+            case ('text'):
+                $card->load('texts');
+                if ($card->texts) Text::whereIn('id', $card->texts->pluck('id'))->delete();
                 break;
         }
 
 
         $card->contents()->delete(); // card_content pivot
+        
+        // $card->load('stacks')->with('cards');
+        $stackCards = $card->stacks[0]->cards;
+        $cardPos = $stackCards->find($card)->pivot->position;
+        $cardsAboveIds = $stackCards->filter(function ($value) use ($cardPos) {
+            return $value->pivot->position > $cardPos;
+        })->pluck('id');
+        $card->stacks[0]->cards()->whereIn('card_id', $cardsAboveIds)->decrement('position');
+        
         $card->delete(); // including card_stack pivot
     }
 
