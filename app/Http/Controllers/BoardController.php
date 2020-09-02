@@ -153,7 +153,7 @@ class BoardController extends Controller
     {
 
         
-        $filteredRequest = $request->except('user_id');
+        // $filteredRequest = $request->except('user_id');
         
         $validatedData = $request->validate([
             'title' => 'required|min:3',
@@ -162,25 +162,28 @@ class BoardController extends Controller
         
         $board = Board::find($request->boardId);
 
-        $user = $request->user();
 
         if ($board == null
         ) {
             return $this->boardNotFoundError();
         }
+        
+        $user = $request->user();
+        
 
         if ($board->user_id != $user->id) {
             return $this->boardNoPermissionError();
         }
 
-        $fields = $request->fields;
-        $fields = json_decode(stripslashes($fields), true);
+        $fields = $request->only('title');
+        // $fields = json_decode(stripslashes($fields), true);
         // return json_decode(stripslashes($request->fields), true);
         // $n = board::where('id', $board->id)
         //     ->update($fields);
-        $board->fill($fields);
-
-        return new BoardResource($board);
+        $board->fill($fields)->save();
+        
+        return;
+        // return new BoardResource($board);
         
     }
 
