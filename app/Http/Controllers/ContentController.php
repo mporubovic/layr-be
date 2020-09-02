@@ -164,7 +164,7 @@ class ContentController extends Controller
 
             case ('todo'):
 
-                $filteredAttributes = $request->only('content.todo.body');
+                $filteredAttributes = $request->only('content.todo.body', 'content.todo.completed_at');
                 try {
                     $todo = Todo::findOrFail($contentId);
                 } catch (\Exception $e) {
