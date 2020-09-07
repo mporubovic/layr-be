@@ -59,4 +59,16 @@ class User extends Authenticatable
         
     }
 
+    public function subdomains() {
+
+        return $this->belongsToMany('App\Subdomain')->withTimestamps();
+
+    }
+
+    public function roles() {
+
+        return $this->belongsToMany('App\Role')->withTimestamps();
+
+    }
+
 }

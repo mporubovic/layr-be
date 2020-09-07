@@ -1,6 +1,8 @@
 <?php
 
 // use App\Http\Controllers\Services\ServiceController;
+
+use App\Http\Resources\User as UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,7 +20,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+    // return $request->user();
+    return new UserResource($request->user());
 });
 
 // Route::get('/apitest', 'BoardController@index');
@@ -32,6 +35,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // });
 
 // Route::middleware('auth:sanctum')->get('/boards', 'BoardController@index');
+
+// Route::middleware('throttle:60,1')
+Route::get('/auth/login/checkemail/{email}', 'Services\ServiceController@checkEmail');
+
 
 Route::middleware('auth:sanctum')->group(function () {
     
@@ -54,6 +61,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/content/{contentId}', 'ContentController@update');
     Route::delete('/content/{contentId}', 'ContentController@destroy');
 
+    Route::get('/students', 'StudentController@index');
+    Route::post('/students', 'StudentController@store');
+    Route::get('/students/{studentId}', 'StudentController@show');
+    Route::patch('/students/{studentId}', 'StudentController@update');
+    Route::delete('/students/{studentId}', 'StudentController@destroy');
+    
+    
+    
     Route::get('/services/sitetitle/{site}', 'Services\ServiceController@siteTitle')->where('site', '.*');
 
 

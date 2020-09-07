@@ -116,11 +116,15 @@ class CardController extends Controller
                 
                 case('file'):
                     if (!$request->hasFile('content')) {
-                        return $this->cardNoFileUploadedError();
+                        $files = $request->content;
+                        $cardContent = $this->cardFileHandler($files, $cardType, 'link');
+                        // return $this->cardNoFileUploadedError();
+                    } else {
+                        $files = $request->file('content');
+                        $cardContent = $this->cardFileHandler($files, $cardType, 'upload');
                     }
                     
-                    $files = $request->file('content');
-                    $cardContent = $this->cardFileHandler($files, $cardType);        
+                    
                     $eagerLoadContent = 'files';
                     break;
 

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Services;
 
 use App\Http\Controllers\Controller;
+use App\Subdomain;
+use App\User;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Http;
@@ -47,5 +49,36 @@ class ServiceController extends Controller
         // $response = file_get_contents('https://www.bbc.com/');
         
 
+    }
+
+    public function checkEmail(Request $request) {
+        $email = $request->email;
+        // $requestUrl = $request->url();
+        // $requestUrl = $request->fullUrl();
+        $requestUrl = $request->headers->get('origin');
+        // $subdomainName = explode('.', $requestUrl)[0];
+        $parsedUrl = parse_url($requestUrl);
+        $subdomainName = explode('.', $parsedUrl['host'])[0];
+        $subdomainName = 'matej';
+        // return "hello";
+        // return $email;
+        // return $subdomainName;
+        // return $parsedUrl;
+        // return $requestUrl;
+
+        $user = User::where('email', $email)->first();
+
+        if (! $user) {
+            return abort(404, 'User not found');
+        }
+        
+        $subdomain = Subdomain::where('name', $subdomainName)->first();
+
+        if (!$user->subdomains->contains($subdomain)) {
+            return abort(400, 'Invalid subdomain for the requested user');
+        }
+
+        $role = $user->roles->first();
+        return [ 'role' => $role->name];
     }
 }
