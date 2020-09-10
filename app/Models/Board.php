@@ -12,9 +12,9 @@ class Board extends Model
     //     return route('boards.show', $this);
     // }
 
-    public function user() {
+    public function users() {
 
-        return $this->belongsTo('App\User');
+        return $this->belongsToMany('App\User')->withTimestamps();
 
 
     }

@@ -60,7 +60,7 @@ class BoardController extends Controller
         }
         // return response()->json($boards);
         
-        if ($board->user_id != $user->id) {
+        if (!$user->boards->contains($board)) {
             $this->boardNoPermissionError();
         }
 
@@ -91,7 +91,6 @@ class BoardController extends Controller
      */
     public function store(Request $request)
     {
-        $user = $request->user();
         
         // $board = new Board;
         // $board->title = request('title');
@@ -101,11 +100,19 @@ class BoardController extends Controller
 
         $validatedData = $request->validate([
             'title' => 'required|min:3',
+            'studentId' => 'required|integer'
         ]);
+
+        $user = $request->user();
+
         
         // return [$request->title, $request->user()];
         
         $board = $user->boards()->create(['title' => $request->title]);
+        
+        $studentId = $request->studentId;
+        
+        $user->subdomains->first()->users()->find($studentId)->boards()->attach($board);
         // $board = Board::create([
         //     // 'title' => $request->title,
         //     'title' => $request->title,
@@ -171,7 +178,7 @@ class BoardController extends Controller
         $user = $request->user();
         
 
-        if ($board->user_id != $user->id) {
+        if (!$user->boards->contains($board)) {
             return $this->boardNoPermissionError();
         }
 

@@ -15,7 +15,7 @@ class Stack extends Model
 
     }
 
-    public function board() {
+    public function boards() {
         
         return $this->belongsToMany('App\Models\Board')->withTimestamps();
 

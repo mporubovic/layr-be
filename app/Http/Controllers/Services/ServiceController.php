@@ -58,8 +58,9 @@ class ServiceController extends Controller
         $requestUrl = $request->headers->get('origin');
         // $subdomainName = explode('.', $requestUrl)[0];
         $parsedUrl = parse_url($requestUrl);
-        $subdomainName = explode('.', $parsedUrl['host'])[0];
-        $subdomainName = 'matej';
+        $parts = explode('.', $parsedUrl['host']);
+        $subdomainName = $parts[count($parts)-3];
+        // $subdomainName = 'weiman';
         // return "hello";
         // return $email;
         // return $subdomainName;

@@ -24,6 +24,8 @@ class Board extends JsonResource
             'info' => [
                 'id' => $this->id,
                 'title' => $this->title,
+                'created_at' => $this->created_at,
+                'updated_at' => $this->updated_at,
             ],
 
             'stacks' => Stack::collection($this->whenLoaded('stacks')),

@@ -14,7 +14,9 @@ class Student extends JsonResource
             'email' => $this->email,
             'role' => $this->roles()->first()->name,
             'id' => $this->id,
-            'boards' => $this->boards,
+            'name' => $this->name,
+            'created_at' => $this->created_at,
+            'boards' => Board::collection($this->whenLoaded('boards')),
         ];
     }
 }

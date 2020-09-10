@@ -23,7 +23,7 @@ class CreateBoardUserTable extends Migration
             
             $table->timestamps();
             
-            $table->text('permissions');
+            // $table->text('permissions');
 
             $table->foreign('board_id')->references('id')->on('boards')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
