@@ -137,7 +137,7 @@ class ContentController extends Controller
             return $this->cardNotFoundError();
         }
 
-        if ($card->user_id != $user->id) {
+        if (!$card->stacks[0]->boards[0]->users->contains($user)) {
             return $this->cardNoPermissionError();
         }
 
