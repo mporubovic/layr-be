@@ -215,7 +215,7 @@ class CardController extends Controller
             $this->cardNotFoundError();
         }
 
-        if ($card->user_id != $user->id) {
+        if (!$card->stacks[0]->boards[0]->users->contains($user)) {
             return $this->cardNoPermissionError();    
         }
         
@@ -342,7 +342,7 @@ class CardController extends Controller
         
         $user = $request->user();
         
-        if ($card->user_id != $user->id) {
+        if (!$card->stacks[0]->boards[0]->users->contains($user)) {
             return $this->cardNoPermissionError();
         }
 
