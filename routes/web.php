@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
+use Illuminate\Support\Facades\File;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -24,8 +25,16 @@ use Illuminate\Support\Facades\Route;
 //     return \File::get(public_path() . '/indexv.html');
 // })->where('any', '.*');
 
+
+Route::domain('{subdomain}.' . env('APP_DOMAIN'))->group(function ($subdomain) {
+    Route::get('/', function () {
+        return File::get(public_path() . '/indexv.html');
+
+    });
+});
+
 Route::get('/', function () {
-    return \File::get(public_path() . '/indexv.html');
+    return File::get(public_path() . '/indexp.html');
 });
 
 Route::group(['prefix' => 'auth'], function () {
