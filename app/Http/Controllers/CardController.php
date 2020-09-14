@@ -117,11 +117,11 @@ class CardController extends Controller
                 case('file'):
                     if (!$request->hasFile('content')) {
                         $files = $request->content;
-                        $cardContent = $this->cardFileHandler($files, $cardType, 'link');
+                        $cardContent = $this->cardLinkedFileHandler($files, $cardType);
                         // return $this->cardNoFileUploadedError();
                     } else {
                         $files = $request->file('content');
-                        $cardContent = $this->cardFileHandler($files, $cardType, 'upload');
+                        $cardContent = $this->cardUploadedFileHandler($files, $cardType);
                     }
                     
                     

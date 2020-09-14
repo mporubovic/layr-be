@@ -98,7 +98,7 @@ trait CardTraits
     }
 
 
-    public function cardFileHandler($files, $cardType, $source)
+    public function cardUploadedFileHandler($files, $cardType)
     {
 
 
@@ -150,6 +150,10 @@ trait CardTraits
         }
 
         return $filesInDatabse;
+    }
+
+    public function cardLinkedFileHandler($files, $cardType) {
+        
     }
 
     public function cardTodoHandler(array $todos)

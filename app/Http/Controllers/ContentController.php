@@ -14,11 +14,17 @@ use App\Models\Content\Text;
 use App\Models\Content;
 
 use App\Http\Resources\Card as CardResource;
-use App\Http\Resources\FileCollection as FileResourceCollection;
+// use App\Http\Resources\FileCollection as FileResourceCollection;
 use App\Http\Resources\CardCollection as CardResourceCollection;
-
+use App\Http\Resources\File as FileResource;
 use App\Traits\CardTraits;
 use App\Traits\CardErrors;
+
+use App\Http\Resources\FileCollection as FileResourceCollection;
+use App\Http\Resources\TodoCollection as TodoResourceCollection;
+use App\Http\Resources\UrlCollection as UrlResourceCollection;
+use App\Http\Resources\EmbedCollection as EmbedResourceCollection;
+// use App\Http\Resources\Text as TextResource;
 
 class ContentController extends Controller
 {
@@ -60,17 +66,27 @@ class ContentController extends Controller
         $cardType = $card->type;
         $cardContentType = $this->cardTypeToContentType($cardType);
 
+        // return $cardContentType;
+
 
         switch($cardContentType) {
             case('file'):
                 if (!$request->hasFile('content')) {
-                    return $this->cardNoFileUploadedError();
+                    $files = $request->content;
+                    $cardContent = $this->cardLinkedFileHandler($files, $cardType);
+                    // return ['one', $request->file('content')];
+                    // return $this->cardNoFileUploadedError();
+                } else {
+                    $files = $request->file('content');
+                    $cardContent = $this->cardUploadedFileHandler([$files], $cardType);
+                    // return $files;
+
                 }
-                
-                $files = $request->file('content');
-                $cardContent = $this->cardFileHandler($files, $cardType);        
                 $eagerLoadContent = 'files';
-                // return new FileResourceCollection($filesInDatabse); // doesn't return pivot table info
+                $cardContentResource = FileResource::collection($cardContent);
+
+                // return ['content', $cardContent];
+
             
                 break;
 
@@ -79,6 +95,8 @@ class ContentController extends Controller
                 $todos = $request->content;
                 $cardContent = $this->cardTodoHandler($todos);
                 $eagerLoadContent = 'todos';
+                $cardContentResource = new TodoResourceCollection($cardContent);
+
                 break;
 
             case ('url'):
@@ -87,6 +105,8 @@ class ContentController extends Controller
                 // return var_dump($urls);
                 $cardContent = $this->cardUrlHandler($urls);
                 $eagerLoadContent = 'urls';
+                $cardContentResource = new UrlResourceCollection($cardContent);
+
                 break;
 
             case ('embed'):
@@ -95,12 +115,14 @@ class ContentController extends Controller
                 // return var_dump($embeds);
                 $cardContent = $this->cardEmbedHandler($embeds);
                 $eagerLoadContent = 'embeds';
+                $cardContentResource = new EmbedResourceCollection($cardContent);
+
                 break;
         }
 
         $this->cardContentHandler($cardContent, $card, $cardContentType);
 
-        return $cardContent;
+        return $cardContentResource;
 
         return new CardResource($card->load($eagerLoadContent));
     }

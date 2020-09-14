@@ -12,7 +12,7 @@ class FileCollection extends ResourceCollection
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    public static $wrap = 'files';
+    // public static $wrap = 'files';
     public function toArray($request)
     {
         return parent::toArray($request);
