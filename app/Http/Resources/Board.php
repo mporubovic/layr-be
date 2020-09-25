@@ -28,6 +28,8 @@ class Board extends JsonResource
                 'updated_at' => $this->updated_at,
             ],
 
+            'settings' => $this->settings,
+
             'stacks' => Stack::collection($this->whenLoaded('stacks')),
         ];
     }

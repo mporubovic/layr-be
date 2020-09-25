@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 use App\Http\Resources\Board as BoardResource;
 use App\Http\Resources\BoardCollection as BoardResourceCollection;
 
+use Illuminate\Support\Arr;
+
+
 class BoardController extends Controller
 {
     /**
@@ -100,15 +103,21 @@ class BoardController extends Controller
 
         $validatedData = $request->validate([
             'title' => 'required|min:3',
-            'studentId' => 'required|integer'
+            'studentId' => 'required|integer',
+            'settings' => 'required|json'
         ]);
 
         $user = $request->user();
+        $requestSettings = Arr::only(json_decode($request->settings, true), ['dimensions']);
+
+        // return $requestSettings;
 
         
         // return [$request->title, $request->user()];
         
-        $board = $user->boards()->create(['title' => $request->title]);
+        $board = $user->boards()->create(['title' => $request->title,
+                                            'settings' => $requestSettings,    
+                                            ]);
         
         $studentId = $request->studentId;
         
