@@ -100,7 +100,7 @@ class StudentController extends Controller
 
         $attributes = $request->only('name', 'password');
 
-        if ($attributes['password']) {
+        if (array_key_exists('password', $attributes)) {
             $attributes['password'] = Hash::make($attributes['password']); 
             DB::table('sessions')->where('user_id', $student->id)->delete();
         }
