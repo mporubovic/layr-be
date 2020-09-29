@@ -172,7 +172,7 @@ class BoardController extends Controller
         // $filteredRequest = $request->except('user_id');
         
         $validatedData = $request->validate([
-            'title' => 'required|min:3',
+            'title' => 'required|min:1',
         ]);
 
         
