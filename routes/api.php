@@ -38,13 +38,21 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // Route::middleware('throttle:60,1')
 Route::get('/auth/login/checkemail/{email}', 'Services\ServiceController@checkEmail');
+Route::get('/services/sitetitle/{site}', 'Services\ServiceController@siteTitle')->where('site', '.*');
+
+
+// Route::get('/boards', 'BoardController@index'); // for public access to public boards
+Route::get('/boards/{boardId}', 'BoardController@show');
+
+Route::get('/subdomains/{subdomain}', 'SubdomainController@show');
+
 
 
 Route::middleware('auth:sanctum')->group(function () {
     
     
     Route::get('/boards', 'BoardController@index');
-    Route::get('/boards/{boardId}', 'BoardController@show');
+    // Route::get('/boards/{boardId}', 'BoardController@show');
     Route::post('/boards', 'BoardController@store');
     Route::patch('/boards/{boardId}', 'BoardController@update');
     Route::delete('/boards/{boardId}', 'BoardController@destroy');
@@ -69,7 +77,7 @@ Route::middleware('auth:sanctum')->group(function () {
     
     
     
-    Route::get('/services/sitetitle/{site}', 'Services\ServiceController@siteTitle')->where('site', '.*');
+    // Route::get('/services/sitetitle/{site}', 'Services\ServiceController@siteTitle')->where('site', '.*');
 
 
 });

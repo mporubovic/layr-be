@@ -11,6 +11,9 @@ use App\Http\Resources\BoardCollection as BoardResourceCollection;
 
 use Illuminate\Support\Arr;
 
+use App\Subdomain;
+
+
 
 class BoardController extends Controller
 {
@@ -21,7 +24,6 @@ class BoardController extends Controller
      */
     public function index(Request $request)
     {
-
         $user = $request->user();
 
         // return $user->with('boards.stacks.cards.files.content')->get();
@@ -54,7 +56,7 @@ class BoardController extends Controller
         // ]);
         
         
-        $user = $request->user();
+        // $user = $request->user();
         // $board = Board::find($request->boardId);
         $board = Board::find($request->boardId);
 
@@ -62,10 +64,28 @@ class BoardController extends Controller
             $this->boardNotFoundError();
         }
         // return response()->json($boards);
-        
-        if (!$user->boards->contains($board)) {
-            $this->boardNoPermissionError();
+        if ($request->user() !== null) {
+            $user = $request->user();
+            
+            if (!$user->boards->contains($board)) {
+                $this->boardNoPermissionError();
+            }
+        } else {
+            $requestUrl = $request->headers->get('origin');
+            // $subdomainName = explode('.', $requestUrl)[0];
+            $parsedUrl = parse_url($requestUrl);
+            $parts = explode('.', $parsedUrl['host']);
+            // $subdomainName = $parts[count($parts)-3];
+            $subdomainName = 'local';
+            $subdomain = Subdomain::where('name', $subdomainName)->first();
+
+            if ($subdomain === null) abort(404);
+
+            if (!$subdomain->boards->contains($board)) {
+                abort(404);
+            }
         }
+
 
         // return $cards;
         

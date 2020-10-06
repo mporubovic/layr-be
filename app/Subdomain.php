@@ -11,4 +11,8 @@ class Subdomain extends Model
     public function users() {
         return $this->belongsToMany('App\User')->withTimestamps();
     }
+
+    public function boards(){
+        return $this->belongsToMany('App\Models\Board')->withTimestamps();
+    }
 }
