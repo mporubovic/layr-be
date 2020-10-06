@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+// use Illuminate\Foundation\Application;
+
 use App\Models\Board;
 use App\Models\Stack;
 use Illuminate\Http\Request;
@@ -77,8 +79,8 @@ class BoardController extends Controller
             $parsedUrl = parse_url($requestUrl);
             $parts = explode('.', $parsedUrl['host']);
 
-            if (App::environment('production')) $subdomainName = $parts[count($parts)-3];
-            if (App::environment('local')) $subdomainName = 'local';
+            if (\App::environment('production')) $subdomainName = $parts[count($parts)-3];
+            if (\App::environment('local')) $subdomainName = 'local';
             
             $subdomain = Subdomain::where('name', $subdomainName)->first();
 
