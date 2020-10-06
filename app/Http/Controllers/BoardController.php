@@ -28,7 +28,8 @@ class BoardController extends Controller
 
         // return $user->with('boards.stacks.cards.files.content')->get();
         // return $user->boards;
-        return new BoardResourceCollection($user->boards);
+        return new BoardResourceCollection($user->boards->load('subdomains'));
+        // return new BoardResourceCollection($user->boards);
         
         // $boards = Board::orderBy('updated_at', 'desc')->get();
 
@@ -123,8 +124,9 @@ class BoardController extends Controller
 
         $validatedData = $request->validate([
             'title' => 'required|min:3',
-            'studentId' => 'required|integer',
-            'settings' => 'required|json'
+            'studentId' => 'sometimes|integer',
+            'settings' => 'required|json',
+            'public' => 'sometimes|boolean'
         ]);
 
         $user = $request->user();
@@ -139,9 +141,16 @@ class BoardController extends Controller
                                             'settings' => $requestSettings,    
                                             ]);
         
-        $studentId = $request->studentId;
         
-        $user->subdomains->first()->users()->find($studentId)->boards()->attach($board);
+        if ($request->public) {
+            $user->subdomains->first()->boards()->attach($board);
+        } 
+        
+        
+        if (isset($request->studentId)) {
+            $user->subdomains->first()->users()->find($request->studentId)->boards()->attach($board);
+        }
+
         // $board = Board::create([
         //     // 'title' => $request->title,
         //     'title' => $request->title,
@@ -158,7 +167,7 @@ class BoardController extends Controller
         // return redirect(route('boards.index'));
 
         // return $board;
-        return new BoardResource($board);
+        return new BoardResource($board->load('subdomains'));
     }
 
 

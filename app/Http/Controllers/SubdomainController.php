@@ -51,7 +51,8 @@ class SubdomainController extends Controller
         }
 
         return [
-            "public" => new BoardResourceCollection($boards)
+            "public" => new BoardResourceCollection($boards),
+            "settings" => $subdomain->settings,
         ];
     }
 

@@ -26,4 +26,8 @@ class Board extends Model
         return $this->belongsToMany('App\Models\Stack')->withTimestamps();
 
     }
+
+    public function subdomains() {
+        return $this->belongsToMany('App\Subdomain')->withTimestamps();
+    }
 }

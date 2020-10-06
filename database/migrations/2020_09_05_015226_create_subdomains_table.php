@@ -17,6 +17,7 @@ class CreateSubdomainsTable extends Migration
             $table->id();
 
             $table->string('name')->unique();
+            $table->json('settings')->nullable();
             // $table->unsignedBigInteger('user_id');
 
             $table->timestamps();
