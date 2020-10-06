@@ -76,8 +76,10 @@ class BoardController extends Controller
             // $subdomainName = explode('.', $requestUrl)[0];
             $parsedUrl = parse_url($requestUrl);
             $parts = explode('.', $parsedUrl['host']);
-            $subdomainName = $parts[count($parts)-3];
-            // $subdomainName = 'local';
+
+            if (App::environment('production')) $subdomainName = $parts[count($parts)-3];
+            if (App::environment('local')) $subdomainName = 'local';
+            
             $subdomain = Subdomain::where('name', $subdomainName)->first();
 
             if ($subdomain === null) abort(404);

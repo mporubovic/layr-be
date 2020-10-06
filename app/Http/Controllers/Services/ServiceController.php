@@ -59,8 +59,10 @@ class ServiceController extends Controller
         // $subdomainName = explode('.', $requestUrl)[0];
         $parsedUrl = parse_url($requestUrl);
         $parts = explode('.', $parsedUrl['host']);
-        $subdomainName = $parts[count($parts)-3];
-        // $subdomainName = 'weiman';
+
+        if (App::environment('production')) $subdomainName = $parts[count($parts)-3];
+        if (App::environment('local')) $subdomainName = 'local';
+        
         // return "hello";
         // return $email;
         // return $subdomainName;
