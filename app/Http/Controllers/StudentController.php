@@ -23,7 +23,7 @@ class StudentController extends Controller
         $user = $request->user();
         $subdomain = $user->subdomains->first();
 
-        $students = $subdomain->users->except($user->id);
+        $students = $subdomain->users->except($user->id)->load('roles');
 
         return new StudentResourceCollection($students);
 

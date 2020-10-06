@@ -12,7 +12,7 @@ class Student extends JsonResource
     {
         return [
             'email' => $this->email,
-            'role' => $this->roles()->first()->name,
+            'role' => $this->roles->first()->name,
             'id' => $this->id,
             'name' => $this->name,
             'created_at' => $this->created_at,
