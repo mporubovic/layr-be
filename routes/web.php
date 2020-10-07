@@ -34,7 +34,7 @@ Route::domain('{subdomain}.' . env('APP_DOMAIN'))->group(function ($subdomain) {
 });
 
 Route::get('/', function () {
-    return File::get(public_path() . '/indexw.php');
+    return File::get(public_path() . '/indexp.html');
 });
 
 Route::group(['prefix' => 'auth'], function () {
