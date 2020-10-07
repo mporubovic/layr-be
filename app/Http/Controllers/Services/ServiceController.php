@@ -35,7 +35,7 @@ class ServiceController extends Controller
 
         // return [$response, $site];
         if (preg_match($pattern, $response, $match)) {
-            return $match[1];
+            return html_entity_decode($match[1], ENT_QUOTES); 
         } else {
             // return false;
             abort(422);
