@@ -122,7 +122,7 @@ trait CardTraits
         foreach ($files as $index => $file) {
 
             $filePath = $file->store('a');
-            $publicUrl = env('APP_PUBLIC_URL');
+            $publicUrl = env('APP_API_URL');
             $storagePath = '/storage';
             $filePublicUrl = $publicUrl . $storagePath . '/' . $filePath;
 
