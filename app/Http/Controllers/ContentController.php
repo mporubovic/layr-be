@@ -11,6 +11,7 @@ use App\Models\Content\Todo;
 use App\Models\Content\Url;
 use App\Models\Content\Embed;
 use App\Models\Content\Text;
+use App\Models\Content\Whiteboard;
 use App\Models\Content;
 
 use App\Http\Resources\Card as CardResource;
@@ -233,6 +234,18 @@ class ContentController extends Controller
                 $text->fill($filteredAttributes['content'])->save();
 
                 break;
+        
+            case ('whiteboard'):
+
+                $filteredAttributes = $request->only('content.whiteboard.data');
+                try {
+                    $whiteboard = Whiteboard::findOrFail($contentId);
+                } catch (\Exception $e) {
+                    return $e->getMessage();
+                }
+                $whiteboard->fill($filteredAttributes['content']['whiteboard'])->save();
+
+                break;        
         }
 
     }
@@ -309,6 +322,12 @@ class ContentController extends Controller
                 $card->load('texts');
                 // Url::whereIn('id', $contentId)->delete();
                 Text::destroy($contentId);
+                break;
+            
+            case ('whiteboard'):
+                $card->load('whiteboards');
+                // Url::whereIn('id', $contentId)->delete();
+                Whiteboard::destroy($contentId);
                 break;
         }
 

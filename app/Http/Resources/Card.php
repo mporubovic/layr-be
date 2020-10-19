@@ -9,6 +9,7 @@ use App\Http\Resources\Todo as TodoResource;
 use App\Http\Resources\Url as UrlResource;
 use App\Http\Resources\Embed as EmbedResource;
 use App\Http\Resources\Text as TextResource;
+use App\Http\Resources\Whiteboard as WhiteboardResource;
 // use App\Http\Resources\Content as ContentResource;
 // use App\Http\Resources\ContentCollection as ContentResourceCollection;
 
@@ -146,6 +147,16 @@ class Card extends JsonResource
                     // return "hello";
                     // return TextResource::collection($this->whenLoaded('texts'));
                     return TextResource::collection($this->whenLoaded('texts'));
+                }
+
+            case 'whiteboard':
+
+                if ($this->whenLoaded('whiteboards') === null) {
+                    return;
+                } else {
+                    // return "hello";
+                    // return TextResource::collection($this->whenLoaded('texts'));
+                    return WhiteboardResource::collection($this->whenLoaded('whiteboards'));
                 }
 
 

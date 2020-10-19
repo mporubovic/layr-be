@@ -7,6 +7,7 @@ use App\Models\Content\Todo;
 use App\Models\Content\Url;
 use App\Models\Content\Embed;
 use App\Models\Content\Text;
+use App\Models\Content\Whiteboard;
 
 trait CardTraits
 {
@@ -53,6 +54,8 @@ trait CardTraits
             'url' => 'url',
 
             'folder' => 'file',
+            
+            'whiteboard' => 'whiteboard',
         ];
 
         $cardContentTypes = [];
@@ -222,6 +225,18 @@ trait CardTraits
             $textInDatabase->save();
             array_push($textInArray, $textInDatabase);
         return $textInArray;
+    }    
+    
+    public function cardWhiteboardHandler($whiteboard)
+    {
+            $whiteboardInArray = [];
+            $whiteboardInDatabase = new Whiteboard([
+                'data' => json_encode($whiteboard[0]['whiteboard']['data']),
+            ]);
+
+            $whiteboardInDatabase->save();
+            array_push($whiteboardInArray, $whiteboardInDatabase);
+        return $whiteboardInArray;
     }
 
     public function cardAssignInterpreter($extension)

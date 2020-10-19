@@ -8,6 +8,7 @@ use App\Models\Content\Todo;
 use App\Models\Content\Url;
 use App\Models\Content\Text;
 use App\Models\Content\Embed;
+use App\Models\Content\Whiteboard;
 use App\Models\Content;
 use Illuminate\Http\Request;
 
@@ -77,7 +78,7 @@ class CardController extends Controller
         Validator::make($request->all(), [
             'type' => [
                 'required',
-                Rule::in(['image', 'video', 'pdf', '3dobject', 'todo', 'url', 'embed', 'text', 'youtube'])
+                Rule::in(['image', 'video', 'pdf', '3dobject', 'todo', 'url', 'embed', 'text', 'youtube', 'whiteboard'])
             ],
             // 'program' => 'required',
 
@@ -160,6 +161,14 @@ class CardController extends Controller
                     // return var_dump($urls);
                     $cardContent = $this->cardTextHandler($text);
                     $eagerLoadContent = 'texts';
+                    break;
+
+                case ('whiteboard'):
+
+                    $whiteboard = $request->content;
+                    // return var_dump($urls);
+                    $cardContent = $this->cardWhiteboardHandler($whiteboard);
+                    $eagerLoadContent = 'whiteboards';
                     break;
             }
 
@@ -379,6 +388,10 @@ class CardController extends Controller
             case ('text'):
                 $card->load('texts');
                 if ($card->texts) Text::whereIn('id', $card->texts->pluck('id'))->delete();
+                break;
+            case ('whiteboard'):
+                $card->load('whiteboards');
+                if ($card->whiteboards) Whiteboard::whereIn('id', $card->whiteboards->pluck('id'))->delete();
                 break;
         }
 

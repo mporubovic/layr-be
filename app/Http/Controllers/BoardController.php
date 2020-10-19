@@ -106,6 +106,7 @@ class BoardController extends Controller
                                                 'stacks.cards.urls', 
                                                 'stacks.cards.embeds',
                                                 'stacks.cards.texts',
+                                                'stacks.cards.whiteboards',
                                                 ]));
         // return new BoardResource($board->load(['stacks.cards.files', 'stacks.cards.todos']));
     

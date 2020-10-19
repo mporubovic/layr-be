@@ -13,6 +13,7 @@ use App\Relations\TodoRelation;
 use App\Relations\UrlRelation;
 use App\Relations\EmbedRelation;
 use App\Relations\TextRelation;
+use App\Relations\WhiteboardRelation;
 use App\User;
 
 
@@ -20,7 +21,7 @@ use App\User;
 class Card extends Model
 {
 
-    protected $fillable = ['title', 'type', 'settings', 'program', 'x', 'y', 'width', 'height'];
+    protected $fillable = ['title', 'type', 'settings', 'program', 'x', 'y', 'width', 'height']; // CLEAN UP
 
     protected $casts = ['settings' => 'json'];
 
@@ -141,6 +142,12 @@ class Card extends Model
     {
 
         return new TextRelation($this);
+    }    
+    
+    public function whiteboards()
+    {
+
+        return new WhiteboardRelation($this);
     }
 
     public function content () {
