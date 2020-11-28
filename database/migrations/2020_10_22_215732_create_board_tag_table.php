@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class BoardSubdomain extends Migration
+class CreateBoardTagTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,16 @@ class BoardSubdomain extends Migration
      */
     public function up()
     {
-        Schema::create('board_subdomain', function (Blueprint $table) {
+        Schema::create('board_tag', function (Blueprint $table) {
+            $table->primary(['board_id', 'tag_id']);
+            
             $table->unsignedBigInteger('board_id');
-            $table->unsignedBigInteger('subdomain_id');
-    
+            $table->unsignedBigInteger('tag_id');
+
             $table->timestamps();
-    
+
             $table->foreign('board_id')->references('id')->on('boards')->onDelete('cascade');
-            $table->foreign('subdomain_id')->references('id')->on('subdomains')->onDelete('cascade');
+            $table->foreign('tag_id')->references('id')->on('tags')->onDelete('cascade');
         });
     }
 
@@ -31,7 +33,6 @@ class BoardSubdomain extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('board_subdomain');
-
+        Schema::dropIfExists('board_tag');
     }
 }

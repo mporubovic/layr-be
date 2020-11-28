@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class StackCollection extends ResourceCollection
+class TagCollection extends ResourceCollection
 {
     /**
      * Transform the resource collection into an array.
@@ -12,11 +12,11 @@ class StackCollection extends ResourceCollection
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    public static $wrap = 'stacks';
+
+    public static $wrap = 'tags';
     public function toArray($request)
     {
         // return parent::toArray($request);
-        // return ['stacks' => $this->collection];
-        return ['stacks' => $this->collection];
+        return ['tags' => $this->collection];
     }
 }

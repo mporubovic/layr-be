@@ -31,6 +31,11 @@ class Card extends Model
 
     }
 
+    public function boards() {
+        return $this->belongsToMany(Board::class);
+        
+    }
+
     public function title() {
 
         return $this->belongsTo(User::class);

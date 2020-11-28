@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSubdomainUserTable extends Migration
+class CreateGroupUserTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,14 @@ class CreateSubdomainUserTable extends Migration
      */
     public function up()
     {
-        Schema::create('subdomain_user', function (Blueprint $table) {
+        Schema::create('group_user', function (Blueprint $table) {
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('subdomain_id');
+            $table->unsignedBigInteger('group_id');
 
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('subdomain_id')->references('id')->on('subdomains')->onDelete('cascade');
+            $table->foreign('group_id')->references('id')->on('groups')->onDelete('cascade');
         });
     }
 
@@ -31,6 +31,6 @@ class CreateSubdomainUserTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('subdomain_user');
+        Schema::dropIfExists('group_user');
     }
 }

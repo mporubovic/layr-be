@@ -21,6 +21,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     // return $request->user();
+    // return $request->user();
+    // return gettype($request->user());
+    // $user = $request->user();
     return new UserResource($request->user());
 });
 
@@ -42,9 +45,12 @@ Route::get('/services/sitetitle/{site}', 'Services\ServiceController@siteTitle')
 
 
 // Route::get('/boards', 'BoardController@index'); // for public access to public boards
-Route::get('/boards/{boardId}', 'BoardController@show');
+// Route::get('/boards/{boardId}', 'BoardController@show');
 
-Route::get('/subdomains/{subdomain}', 'SubdomainController@show');
+// Route::get('/subdomains/{subdomain}', 'SubdomainController@show');
+
+Route::post('/invite/checktoken', 'InviteController@checkToken');
+Route::post('/invite/accepttoken', 'InviteController@acceptToken');
 
 
 
@@ -52,10 +58,17 @@ Route::middleware('auth:sanctum')->group(function () {
     
     
     Route::get('/boards', 'BoardController@index');
-    // Route::get('/boards/{boardId}', 'BoardController@show');
+    Route::get('/boards/{boardId}', 'BoardController@show');
     Route::post('/boards', 'BoardController@store');
-    Route::patch('/boards/{boardId}', 'BoardController@update');
+    // Route::patch('/boards/{boardId}', 'BoardController@update');
     Route::delete('/boards/{boardId}', 'BoardController@destroy');
+
+
+    Route::get('/stacks', 'StackController@index');
+    Route::get('/stacks/{stackId}', 'StackController@show');
+    Route::post('/stacks', 'StackController@store');
+    Route::patch('/stacks/{stackId}', 'StackController@update');
+    Route::delete('/stacks/{stackId}', 'StackController@destroy');
 
     Route::get('/cards', 'CardController@index');
     Route::post('/cards', 'CardController@store');

@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Stack;
+use App\Models\Stack;
 use Illuminate\Http\Request;
+
+use App\Http\Resources\StackCollection as StackResourceCollection;
+use App\Http\Resources\Stack as StackResource;
+use Illuminate\Support\Arr;
+
 
 class StackController extends Controller
 {
@@ -12,21 +17,11 @@ class StackController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        return new StackResourceCollection($request->user()->stacks);
         //
     }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
     /**
      * Store a newly created resource in storage.
      *
@@ -35,7 +30,27 @@ class StackController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validatedData = $request->validate([
+            'title' => 'required|min:3',
+            'studentId' => 'required|integer',
+            'boardSettings' => 'required|json',
+
+        ]);
+
+        $user = $request->user();
+        $student = $user->groups->first()->users()->find($request->studentId);
+        
+        $boardSettings = Arr::only(json_decode($request->boardSettings, true), ['dimensions']);
+        
+        $stack = $user->stacks()->create(['title' => $request->title, 'user_id' => $user->id]);
+        
+        $student->stacks()->attach($stack);
+
+        $newBoard = $user->boards()->create(['settings' => $boardSettings]);
+
+        $stack->boards()->attach($newBoard);
+        
+        return new StackResource($stack);
     }
 
     /**
@@ -44,21 +59,31 @@ class StackController extends Controller
      * @param  \App\Stack  $stack
      * @return \Illuminate\Http\Response
      */
-    public function show(Stack $stack)
+    public function show(Request $request)
     {
-        //
+        $stack = Stack::find($request->stackId);
+
+        if ($stack == null) {
+            $this->stackNotFoundError();
+        }
+        // return response()->json($stacks);
+        if ($request->user() !== null) {
+            $user = $request->user();
+            
+            if (!$user->stacks->contains($stack)) {
+                $this->stackNoPermissionError();
+            }
+        }
+
+        return new StackResource($stack->load('boards.cards.files', 
+                                                'boards.cards.todos', 
+                                                'boards.cards.user', 
+                                                'boards.cards.urls', 
+                                                'boards.cards.embeds',
+                                                'boards.cards.texts',
+                                                'boards.cards.whiteboards',));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Stack  $stack
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Stack $stack)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
@@ -69,7 +94,30 @@ class StackController extends Controller
      */
     public function update(Request $request, Stack $stack)
     {
-        //
+        $validatedData = $request->validate([
+            'title' => 'required|min:1',
+        ]);
+
+        
+        $stack = Stack::find($request->stackId);
+
+
+        if ($stack == null
+        ) {
+            avirt(404);
+        }
+        
+        $user = $request->user();
+
+        if (!$user->stacks->contains($stack)) {
+            avirt(404);
+
+        }
+
+        $fields = $request->only('title');
+        $stack->fill($fields)->save();
+        
+        return;
     }
 
     /**

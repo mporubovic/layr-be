@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Board;
 use App\Models\Stack;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 
 use App\Http\Resources\Board as BoardResource;
@@ -30,7 +31,7 @@ class BoardController extends Controller
 
         // return $user->with('boards.stacks.cards.files.content')->get();
         // return $user->boards;
-        return new BoardResourceCollection($user->boards->load('subdomains'));
+        return new BoardResourceCollection($user->boards);
         // return new BoardResourceCollection($user->boards);
         
         // $boards = Board::orderBy('updated_at', 'desc')->get();
@@ -67,30 +68,29 @@ class BoardController extends Controller
             $this->boardNotFoundError();
         }
         // return response()->json($boards);
-        if ($request->user() !== null) {
-            $user = $request->user();
-            
-            if (!$user->boards->contains($board)) {
-                $this->boardNoPermissionError();
-            }
-        } else {
-            $requestUrl = $request->headers->get('origin');
-            // $subdomainName = explode('.', $requestUrl)[0];
-            $parsedUrl = parse_url($requestUrl);
-            $parts = explode('.', $parsedUrl['host']);
-
-            if (\App::environment('production')) $subdomainName = $parts[count($parts)-3];
-            if (\App::environment('local')) $subdomainName = 'local';
-            
-            $subdomain = Subdomain::where('name', $subdomainName)->first();
-
-            if ($subdomain === null) abort(404);
-
-            if (!$subdomain->boards->contains($board)) {
-                abort(404);
-            }
+        // if ($request->user() !== null) {
+        $user = $request->user();
+        
+        if (!$user->stacks()->boards->contains($board)) {
+            $this->boardNoPermissionError();
         }
+        // } else {
+        //     $requestUrl = $request->headers->get('origin');
+        //     // $subdomainName = explode('.', $requestUrl)[0];
+        //     $parsedUrl = parse_url($requestUrl);
+        //     $parts = explode('.', $parsedUrl['host']);
 
+        //     if (\App::environment('production')) $subdomainName = $parts[count($parts)-3];
+        //     if (\App::environment('local')) $subdomainName = 'local';
+            
+        //     $subdomain = Subdomain::where('name', $subdomainName)->first();
+
+        //     if ($subdomain === null) abort(404);
+
+        //     if (!$subdomain->boards->contains($board)) {
+        //         abort(404);
+        //     }
+        // }
 
         // return $cards;
         
@@ -100,13 +100,14 @@ class BoardController extends Controller
 
         // return new BoardResource($board->load('stacks.cards.files'));
         // return new BoardResource($board->load('stacks.cards.files'));
-        return new BoardResource($board->load(['stacks.cards.files', 
-                                                'stacks.cards.todos', 
-                                                'stacks.cards.user', 
-                                                'stacks.cards.urls', 
-                                                'stacks.cards.embeds',
-                                                'stacks.cards.texts',
-                                                'stacks.cards.whiteboards',
+        return new BoardResource($board->load(['cards.files', 
+                                                'cards.todos', 
+                                                'cards.user', 
+                                                'cards.urls', 
+                                                'cards.embeds',
+                                                'cards.texts',
+                                                'cards.whiteboards',
+                                                'tags'
                                                 ]));
         // return new BoardResource($board->load(['stacks.cards.files', 'stacks.cards.todos']));
     
@@ -129,9 +130,9 @@ class BoardController extends Controller
 
         $validatedData = $request->validate([
             'title' => 'required|min:3',
-            'studentId' => 'sometimes|integer',
             'settings' => 'required|json',
-            'public' => 'sometimes|boolean'
+            'tag' => 'sometimes|integer',
+            'stackId' => 'required|integer'
         ]);
 
         $user = $request->user();
@@ -147,32 +148,17 @@ class BoardController extends Controller
                                             ]);
         
         
-        if ($request->public) {
-            $user->subdomains->first()->boards()->attach($board);
-        } 
         
-        
-        if (isset($request->studentId)) {
-            $user->subdomains->first()->users()->find($request->studentId)->boards()->attach($board);
+        if (isset($request->tag)) {
+            $tag = Tag::find($request->tag);
+            if ($user->tags->contains($tag)) {
+                $board->tags()->attach($tag);
+            }
         }
 
-        // $board = Board::create([
-        //     // 'title' => $request->title,
-        //     'title' => $request->title,
-        //     'user_id' => $request->user()->id,
-        // ]);
-
-        $stack = $user->stacks()->create();
-
-
-
-        $board->stacks()->attach($stack);
-        // Board::create($this->validateBoard());
-
-        // return redirect(route('boards.index'));
-
+        $user->stacks()->find($request->stackId)->boards()->attach($board);
         // return $board;
-        return new BoardResource($board->load('subdomains'));
+        return new BoardResource($board);
     }
 
 
@@ -205,34 +191,6 @@ class BoardController extends Controller
         
         // $filteredRequest = $request->except('user_id');
         
-        $validatedData = $request->validate([
-            'title' => 'required|min:1',
-        ]);
-
-        
-        $board = Board::find($request->boardId);
-
-
-        if ($board == null
-        ) {
-            return $this->boardNotFoundError();
-        }
-        
-        $user = $request->user();
-        
-
-        if (!$user->boards->contains($board)) {
-            return $this->boardNoPermissionError();
-        }
-
-        $fields = $request->only('title');
-        // $fields = json_decode(stripslashes($fields), true);
-        // return json_decode(stripslashes($request->fields), true);
-        // $n = board::where('id', $board->id)
-        //     ->update($fields);
-        $board->fill($fields)->save();
-        
-        return;
         // return new BoardResource($board);
         
     }

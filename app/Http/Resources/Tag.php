@@ -2,11 +2,12 @@
 
 namespace App\Http\Resources;
 
-
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\Board as BoardResource;
+use Illuminate\Support\Collection;
 
-class Stack extends JsonResource
+// use App\Http\Resources\Stack as StackkResouce;
+
+class Tag extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -14,21 +15,22 @@ class Stack extends JsonResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-
-    public static $wrap = 'stack';
     
+    public static $wrap = 'tag';
+
     public function toArray($request)
     {
         // return parent::toArray($request);
         return [
             'info' => [
                 'id' => $this->id,
-                'title' => $this->title,
+                'name' => $this->name,
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at,
             ],
 
-            'boards' => BoardResource::collection($this->whenLoaded('boards')),
+            'settings' => $this->settings
+
         ];
     }
 }

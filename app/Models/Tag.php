@@ -4,19 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Stack extends Model
+class Tag extends Model
 {
-    protected $fillable = ['title', 'user_id'];
-    
-    public function users() {
-
-        return $this->belongsToMany('App\User');
-
-    }
+    protected $fillable = ['name'];
+    protected $casts = ['settings' => 'json'];
 
     public function boards() {
-        
         return $this->belongsToMany('App\Models\Board')->withTimestamps();
 
     }
+
 }

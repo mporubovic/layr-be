@@ -16,7 +16,7 @@ class Board extends Model
 
     public function users() {
 
-        return $this->belongsToMany('App\User')->withTimestamps();
+        return $this->belongsTo('App\User');
 
 
     }
@@ -27,7 +27,13 @@ class Board extends Model
 
     }
 
-    public function subdomains() {
-        return $this->belongsToMany('App\Subdomain')->withTimestamps();
+    public function tags() {
+        return $this->belongsToMany('App\Models\Tag')->withTimestamps();
+    }
+
+    public function cards() {
+        
+        return $this->belongsToMany('App\Models\Card')->withTimestamps();
+
     }
 }

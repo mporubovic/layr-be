@@ -49,25 +49,30 @@ class User extends Authenticatable
 
     public function stacks() {
 
-        return $this->hasMany('App\Models\Stack');
+        return $this->belongsToMany('App\Models\Stack')->withTimestamps();
 
     }    
     
     public function boards() {
 
-        return $this->belongsToMany('App\Models\Board')->withTimestamps();
+        return $this->hasMany('App\Models\Board');
         
     }
 
-    public function subdomains() {
+    public function groups() {
 
-        return $this->belongsToMany('App\Subdomain')->withTimestamps();
+        return $this->belongsToMany('App\Group')->withTimestamps();
 
     }
 
     public function roles() {
 
         return $this->belongsToMany('App\Role')->withTimestamps();
+
+    }
+    public function tags() {
+
+        return $this->hasMany('App\Models\Tag');
 
     }
 

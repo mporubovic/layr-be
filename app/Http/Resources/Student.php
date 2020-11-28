@@ -4,6 +4,9 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
+use App\Http\Resources\Stack as StackResource;
+
+
 class Student extends JsonResource
 {
     public static $wrap = 'student';
@@ -16,7 +19,8 @@ class Student extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'created_at' => $this->created_at,
-            'boards' => Board::collection($this->whenLoaded('boards')),
+            'stacks' => StackResource::collection($this->whenLoaded('stacks')),
+            'email_verified_at' => $this->email_verified_at,
         ];
     }
 }

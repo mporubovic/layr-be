@@ -7,9 +7,13 @@ use App\Http\Resources\StudentCollection as StudentResourceCollection;
 use App\Role;
 use App\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+
+use App\Mail\InviteCreated;
+use App\Invite;
+
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
 
 class StudentController extends Controller
 {
@@ -21,9 +25,9 @@ class StudentController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $subdomain = $user->subdomains->first();
+        $group = $user->groups->first();
 
-        $students = $subdomain->users->except($user->id)->load('roles');
+        $students = $group->users->except($user->id)->load('roles');
 
         return new StudentResourceCollection($students);
 
@@ -38,29 +42,29 @@ class StudentController extends Controller
     public function store(Request $request)
     {
         $user = $request->user();
-        $subdomain = $user->subdomains->first();
+        $group = $user->groups->first();
         // return strlen($request->password);
         Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'digits:6'],
+            'email' => ['required', 'email', 'max:255', 'unique:users'],
         ])->validate();
 
-        $studentName = $request->name;
-        $studentEmail = $request->email;
-        $studentPassword = $request->password;
-
         $newStudent = User::create([
-            'name' => $studentName,
-            'email' => $studentEmail,
-            'password' => Hash::make($studentPassword),
+            'name' => $request->name,
+            'email' => $request->email,
         ]);
 
         $role = Role::find(2);
 
         $newStudent->roles()->save($role);
 
-        $subdomain->users()->attach($newStudent);
+        $group->users()->attach($newStudent);
+
+        $token = Str::random(32);
+
+        $invite = Invite::create(['user_id' => $newStudent->id, 'token' => $token]);
+
+        Mail::to($request->email)->send(new InviteCreated($token, $user, $newStudent));
 
         return new StudentResource($newStudent);
 
@@ -75,11 +79,11 @@ class StudentController extends Controller
     public function show(Request $request)
     {
         $user = $request->user();
-        $subdomain = $user->subdomains->first();
+        $group = $user->groups->first();
 
-        $student = $subdomain->users()->find($request->studentId);
+        $student = $group->users()->find($request->studentId);
 
-        return new StudentResource($student->load('boards'));
+        return new StudentResource($student->load('stacks.boards'));
 
 
     }
@@ -94,9 +98,9 @@ class StudentController extends Controller
     public function update(Request $request)
     {
         $user = $request->user();
-        $subdomain = $user->subdomains->first();
+        $group = $user->groups->first();
 
-        $student = $subdomain->users()->find($request->studentId);
+        $student = $group->users()->find($request->studentId);
 
         $attributes = $request->only('name', 'password');
 

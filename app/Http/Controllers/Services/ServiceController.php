@@ -53,32 +53,11 @@ class ServiceController extends Controller
 
     public function checkEmail(Request $request) {
         $email = $request->email;
-        // $requestUrl = $request->url();
-        // $requestUrl = $request->fullUrl();
-        $requestUrl = $request->headers->get('origin');
-        // $subdomainName = explode('.', $requestUrl)[0];
-        $parsedUrl = parse_url($requestUrl);
-        $parts = explode('.', $parsedUrl['host']);
-
-        if (\App::environment('production')) $subdomainName = $parts[count($parts)-3];
-        if (\App::environment('local')) $subdomainName = 'local';
-        
-        // return "hello";
-        // return $email;
-        // return $subdomainName;
-        // return $parsedUrl;
-        // return $requestUrl;
 
         $user = User::where('email', $email)->first();
 
         if (! $user) {
             return abort(404, 'User not found');
-        }
-        
-        $subdomain = Subdomain::where('name', $subdomainName)->first();
-
-        if (!$user->subdomains->contains($subdomain)) {
-            return abort(400, 'Invalid subdomain for the requested user');
         }
 
         $role = $user->roles->first();

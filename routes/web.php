@@ -26,15 +26,15 @@ use Illuminate\Support\Facades\File;
 // })->where('any', '.*');
 
 
-Route::domain('{subdomain}.' . env('APP_DOMAIN'))->group(function ($subdomain) {
-    Route::get('/', function () {
-        return File::get(public_path() . '/indexv.html');
+// Route::domain('{subdomain}.' . env('APP_DOMAIN'))->group(function ($subdomain) {
+//     Route::get('/', function () {
+//         return File::get(public_path() . '/indexv.html');
 
-    });
-});
+//     });
+// });
 
 Route::get('/', function () {
-    return File::get(public_path() . '/indexp.html');
+    return File::get(public_path() . '/index.html');
 });
 
 Route::group(['prefix' => 'auth'], function () {
@@ -43,6 +43,7 @@ Route::group(['prefix' => 'auth'], function () {
 
     Route::post('/login', 'Auth\LoginController@login');
     Route::post('/logout', 'Auth\LoginController@logout');
+    Route::post('/register', 'Auth\RegisterController@register');
 });
 
 // Route::get('/boards', 'BoardController@index')->name('boards.index');

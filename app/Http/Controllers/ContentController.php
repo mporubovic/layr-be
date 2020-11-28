@@ -57,7 +57,7 @@ class ContentController extends Controller
             return $this->cardNotFoundError();
         }
 
-        if (!$card->stacks[0]->boards[0]->users->contains($user)) {
+        if (!$card->boards[0]->stacks[0]->users->contains($user)) {
             return $this->cardNoPermissionError();
         }
         
@@ -160,7 +160,7 @@ class ContentController extends Controller
             return $this->cardNotFoundError();
         }
 
-        if (!$card->stacks[0]->boards[0]->users->contains($user)) {
+        if (!$card->boards[0]->stacks[0]->users->contains($user)) {
             return $this->cardNoPermissionError();
         }
 
@@ -267,7 +267,7 @@ class ContentController extends Controller
 
         $user = $request->user();
 
-        if (!$card->stacks[0]->boards[0]->users->contains($user)) {
+        if (!$card->boards[0]->stacks[0]->users->contains($user)) {
             return $this->cardNoPermissionError();
         }
 

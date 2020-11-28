@@ -82,7 +82,7 @@ class CardController extends Controller
             ],
             // 'program' => 'required',
 
-            'stackId' => 'required|integer',
+            'boardId' => 'required|integer',
             'title' => 'required',
             'content' => 'sometimes|array',
             'open' => 'sometimes|boolean',
@@ -95,7 +95,7 @@ class CardController extends Controller
         
         $user = $request->user();
         // return ($request);
-        $stackId = $request->stackId; // TODO: ADD STACK VALIDATION
+        $boardId = $request->boardId; // TODO: ADD STACK VALIDATION
         $cardTitle = $request->title ?? 'New Card';
         $cardType = $request->type;
         $content = $request->content ?? null;
@@ -178,16 +178,14 @@ class CardController extends Controller
             $this->cardContentHandler($cardContent, $card, $cardContentType);
         }
 
-        $stack = \App\Models\Stack::with('cards')->find($stackId);
-        // return $stack;
+        $board = \App\Models\Board::with('cards')->find($boardId);
+        // return $board;
 
-        $stackCardLast = $stack->cards()->max('position');
-        $offset = $stackCardLast === null ? 0 : $stackCardLast + 1;
-        $stack->cards()->attach($card, ['position' => $offset, 'open' => $cardOpen]);
+        $board->cards()->attach($card);
         
-        $cardWithPivot = $stack->cards()->find($card->id);
+        $cardWithPivot = $board->cards()->find($card->id);
         // return $cardWithPivot;
-        // $card->fakePivot['position'] = $stackCardLast + 1;
+        // $card->fakePivot['position'] = $boardCardLast + 1;
         // return $card;
 
         if (isset($eagerLoadContent)) {
@@ -224,7 +222,7 @@ class CardController extends Controller
             $this->cardNotFoundError();
         }
 
-        if (!$card->stacks[0]->boards[0]->users->contains($user)) {
+        if (!$card->boards[0]->stacks[0]->users->contains($user)) {
             return $this->cardNoPermissionError();    
         }
         
@@ -272,7 +270,7 @@ class CardController extends Controller
             return $this->cardNotFoundError();
         }
 
-        if (!$card->stacks[0]->boards[0]->users->contains($user)) {
+        if (!$card->boards[0]->stacks[0]->users->contains($user)) {
             return $this->cardNoPermissionError();
         }
 
@@ -289,12 +287,12 @@ class CardController extends Controller
 
         }
 
-        if(isset($request->open)) {
-            $cardOpen = (int)$request->open;
-            $stackId = $card->stacks[0]->id; 
+        // if(isset($request->open)) {
+        //     $cardOpen = (int)$request->open;
+        //     $stackId = $card->stacks[0]->id; 
 
-            $card->stacks()->updateExistingPivot($stackId, ['open' => $cardOpen]);
-        }
+        //     $card->stacks()->updateExistingPivot($stackId, ['open' => $cardOpen]);
+        // }
         // $requestSettings = Arr::only($request->settings, ['dimensions', 'program', 'styling']);
         // return [$card->settings, $requestSettings];
         // $originalSettings = $card->settings;
@@ -351,7 +349,7 @@ class CardController extends Controller
         
         $user = $request->user();
         
-        if (!$card->stacks[0]->boards[0]->users->contains($user)) {
+        if (!$card->boards[0]->stacks[0]->users->contains($user)) {
             return $this->cardNoPermissionError();
         }
 
@@ -399,13 +397,6 @@ class CardController extends Controller
         $card->contents()->delete(); // card_content pivot
         
         // $card->load('stacks')->with('cards');
-        $stackCards = $card->stacks[0]->cards;
-        $cardPos = $stackCards->find($card)->pivot->position;
-        $cardsAboveIds = $stackCards->filter(function ($value) use ($cardPos) {
-            return $value->pivot->position > $cardPos;
-        })->pluck('id');
-        $card->stacks[0]->cards()->whereIn('card_id', $cardsAboveIds)->decrement('position');
-        
         $card->delete(); // including card_stack pivot
     }
 
