@@ -35,6 +35,6 @@ class InviteCreated extends Mailable
     public function build()
     {
 
-        return $this->markdown('emails.invite')->subject($this->tutor->name . ' invited you to join their class on MyLayr.com');
+        return $this->markdown('emails.invite')->subject($this->tutor->name . ' has invited you to join their class on MyLayr.com');
     }
 }

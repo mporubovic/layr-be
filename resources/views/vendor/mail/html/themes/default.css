@@ -100,14 +100,14 @@ img {
 .header {
     padding: 25px 0;
     text-align: center;
-}
-
-.header a {
     color: #3d4852;
     font-size: 19px;
     font-weight: bold;
     text-decoration: none;
 }
+
+/* .header a {
+} */
 
 /* Logo */
 

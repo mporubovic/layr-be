@@ -7,8 +7,10 @@ Your tutor has invited you to join their online teaching space, where you can
 - organize your own notes
 - ...and much more!
 
-@component('mail::button', ['url' => 'https://app.mylayr.net/invite/' . $token, 'color' => 'primary'])
-Click here to accept
+@component('mail::button', ['url' => 'https://app.mylayr.com/invite/' . $token, 'color' => 'primary'])
+Click here to join
 @endcomponent
+
+### Note: we recommend using a laptop or a PC for the best experience
 
 @endcomponent
