@@ -225,13 +225,13 @@ class ContentController extends Controller
                 
             case ('text'):
 
-                $filteredAttributes = $request->only('content.text');
+                $filteredAttributes = $request->only('content.text.text');
                 try {
                     $text = Text::findOrFail($contentId);
                 } catch (\Exception $e) {
                     return $e->getMessage();
                 }
-                $text->fill($filteredAttributes['content'])->save();
+                $text->fill($filteredAttributes['content']['text'])->save();
 
                 break;
         

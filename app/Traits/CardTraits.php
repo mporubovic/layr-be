@@ -219,7 +219,7 @@ trait CardTraits
     {
             $textInArray = [];
             $textInDatabase = new Text([
-                'text' => json_encode($text[0]['text']),
+                'text' => $text[0]['text']['text'],
             ]);
 
             $textInDatabase->save();
