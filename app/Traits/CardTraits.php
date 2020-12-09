@@ -91,6 +91,7 @@ trait CardTraits
             'pdf' => ['pdf'],
             '3dobject' => ['stl', 'obj'],
             'audio' => ['mid', 'midi', 'mp3', 'mpa', 'ogg', 'wav', 'wma'],
+            'text' => ['jpg', 'jpeg', 'bmp', 'gif', 'ico', 'png', 'tif', 'tiff']
         ];
         if (empty(array_diff($files, $legalFileCombinations[$cardType]))) {
 
@@ -101,7 +102,7 @@ trait CardTraits
     }
 
 
-    public function cardUploadedFileHandler($files, $cardType)
+    public function cardUploadedFileHandler($files, $cardType, $userId)
     {
 
 
@@ -143,6 +144,7 @@ trait CardTraits
                 'size' => $fileSize,
                 'name' => $fileNameSplit,
                 'original_name' => $fileOriginalName,
+                'user_id' => $userId,
             ]);
 
 

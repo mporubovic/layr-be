@@ -79,7 +79,8 @@ class ContentController extends Controller
                     // return $this->cardNoFileUploadedError();
                 } else {
                     $files = $request->file('content');
-                    $cardContent = $this->cardUploadedFileHandler([$files], $cardType);
+                    if (gettype($files) !== "array") $files = [$files];
+                    $cardContent = $this->cardUploadedFileHandler($files, $cardType, $user->id);
                     // return $files;
 
                 }

@@ -88,6 +88,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/students/{studentId}', 'StudentController@update');
     Route::delete('/students/{studentId}', 'StudentController@destroy');
     
+    Route::post('/files', 'FileController@store');
+    
     
     
     // Route::get('/services/sitetitle/{site}', 'Services\ServiceController@siteTitle')->where('site', '.*');

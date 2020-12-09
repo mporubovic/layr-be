@@ -15,6 +15,7 @@ class CreateFilesTable extends Migration
     {
         Schema::create('files', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('user_id');
 
             $table->text('extension');
 
@@ -26,6 +27,8 @@ class CreateFilesTable extends Migration
             $table->text('original_name');
 
             $table->timestamp('uploaded_at');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
         });
     }
 
