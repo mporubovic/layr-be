@@ -41,7 +41,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // Route::middleware('throttle:60,1')
 Route::get('/auth/login/checkemail/{email}', 'Services\ServiceController@checkEmail');
-Route::get('/services/sitetitle/{site}', 'Services\ServiceController@siteTitle')->where('site', '.*');
 
 
 // Route::get('/boards', 'BoardController@index'); // for public access to public boards
