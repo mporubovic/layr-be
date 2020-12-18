@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\File;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+// Auth::routes();
 Route::get('/', function () {
     return File::get(public_path() . '/index.html');
 });
@@ -24,6 +26,9 @@ Route::group(['prefix' => 'auth'], function () {
     Route::post('/login', 'Auth\LoginController@login');
     Route::post('/logout', 'Auth\LoginController@logout');
     Route::post('/register', 'Auth\RegisterController@register');
+
+    Route::post('/password/email', 'Auth\CustomResetPasswordController@sendResetEmail');
+    Route::post('/password/reset', 'Auth\CustomResetPasswordController@resetPassword');
 });
 
 Route::get('/{any}', function () {
