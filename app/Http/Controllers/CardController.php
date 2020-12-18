@@ -122,7 +122,7 @@ class CardController extends Controller
                         // return $this->cardNoFileUploadedError();
                     } else {
                         $files = $request->file('content');
-                        $cardContent = $this->cardUploadedFileHandler($files, $cardType);
+                        $cardContent = $this->cardUploadedFileHandler($files, $cardType, $user->id);
                     }
                     
                     
