@@ -46,8 +46,11 @@ class StackController extends Controller
 
         $newBoard = $user->boards()->create();
 
-        $stack->boards()->attach($newBoard);
+        $stackBoardLast = $stack->boards()->max('position');
+        $offset = $stackBoardLast === null ? 0 : $stackBoardLast + 1;
         
+        $stack->boards()->attach($newBoard, ['position' => $offset]);
+
         return new StackResource($stack);
     }
 

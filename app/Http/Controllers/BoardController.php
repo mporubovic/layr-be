@@ -152,7 +152,12 @@ class BoardController extends Controller
             }
         }
 
-        $user->stacks()->find($request->stackId)->boards()->attach($board);
+        $stack = $user->stacks()->find($request->stackId);
+
+        $stackBoardLast = $stack->boards()->max('position');
+        $offset = $stackBoardLast === null ? 0 : $stackBoardLast + 1;
+        $stack->boards()->attach($board, ['position' => $offset]);
+
         // return $board;
         return new BoardResource($board);
     }

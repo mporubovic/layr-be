@@ -20,6 +20,8 @@ class CreateBoardStackTable extends Migration
             $table->unsignedBigInteger('board_id');
             $table->unsignedBigInteger('stack_id');
 
+            $table->unsignedSmallInteger('position');
+
             $table->timestamps();
 
             $table->foreign('board_id')->references('id')->on('boards')->onDelete('cascade');
