@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class File extends Model
 {
-    protected $fillable = ['extension', 'path', 'name', 'original_name', 'size'];
+    protected $fillable = ['extension', 'path', 'name', 'original_name', 'size', 'user_id'];
 
     const CREATED_AT = 'uploaded_at';
     const UPDATED_AT = null;
