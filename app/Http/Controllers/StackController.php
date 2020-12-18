@@ -33,20 +33,18 @@ class StackController extends Controller
         $validatedData = $request->validate([
             'title' => 'required|min:3',
             'studentId' => 'required|integer',
-            'boardSettings' => 'required|json',
 
         ]);
 
         $user = $request->user();
         $student = $user->groups->first()->users()->find($request->studentId);
         
-        $boardSettings = Arr::only(json_decode($request->boardSettings, true), ['dimensions']);
         
         $stack = $user->stacks()->create(['title' => $request->title, 'user_id' => $user->id]);
         
         $student->stacks()->attach($stack);
 
-        $newBoard = $user->boards()->create(['settings' => $boardSettings]);
+        $newBoard = $user->boards()->create();
 
         $stack->boards()->attach($newBoard);
         

@@ -59,7 +59,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/boards', 'BoardController@index');
     Route::get('/boards/{boardId}', 'BoardController@show');
     Route::post('/boards', 'BoardController@store');
-    // Route::patch('/boards/{boardId}', 'BoardController@update');
+    Route::patch('/boards/{boardId}', 'BoardController@update');
     Route::delete('/boards/{boardId}', 'BoardController@destroy');
 
 

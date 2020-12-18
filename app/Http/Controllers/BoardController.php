@@ -130,22 +130,18 @@ class BoardController extends Controller
 
         $validatedData = $request->validate([
             'title' => 'required|min:3',
-            'settings' => 'required|json',
             'tag' => 'sometimes|integer',
             'stackId' => 'required|integer'
         ]);
 
         $user = $request->user();
-        $requestSettings = Arr::only(json_decode($request->settings, true), ['dimensions']);
 
         // return $requestSettings;
 
         
         // return [$request->title, $request->user()];
         
-        $board = $user->boards()->create(['title' => $request->title,
-                                            'settings' => $requestSettings,    
-                                            ]);
+        $board = $user->boards()->create(['title' => $request->title]);
         
         
         
@@ -188,10 +184,30 @@ class BoardController extends Controller
     public function update(Request $request)
     {
 
+        $user = $request->user();
+        $board = Board::find($request->boardId);
+
+        if ($board == null) {
+            return $this->boardNotFoundError();
+        }
+
+        if (!$board->stacks[0]->users->contains($user)) {
+            return $this->boardNoPermissionError();
+        }
+
+        $attributes = $request->only('title');
         
-        // $filteredRequest = $request->except('user_id');
+        $updatedProperties = $attributes;
         
-        // return new BoardResource($board);
+        if ($request->settings) {
+            $requestSettings = Arr::only($request->settings, ['layout']);
+            $originalSettings = $board->settings ?? [];
+            $settings = array_merge_recursive_distinct($originalSettings, $requestSettings);
+            $updatedProperties = $updatedProperties + compact("settings");
+
+        }
+
+        $board->fill($updatedProperties)->save();
         
     }
 
