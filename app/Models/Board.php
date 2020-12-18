@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+
 class Board extends Model
 {
     protected $fillable = ['title', 'settings'];
@@ -23,7 +24,7 @@ class Board extends Model
 
     public function stacks() {
 
-        return $this->belongsToMany('App\Models\Stack')->withTimestamps();
+        return $this->belongsToMany('App\Models\Stack')->withTimestamps()->withPivot('position');
 
     }
 

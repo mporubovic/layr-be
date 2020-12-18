@@ -16,7 +16,7 @@ class Stack extends Model
 
     public function boards() {
         
-        return $this->belongsToMany('App\Models\Board')->withTimestamps();
+        return $this->belongsToMany('App\Models\Board')->withTimestamps()->withPivot('position');
 
     }
 }

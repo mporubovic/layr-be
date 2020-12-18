@@ -241,6 +241,41 @@ trait CardTraits
         return $whiteboardInArray;
     }
 
+    public function cardsDelete($cards) {
+        foreach ($cards as $card) {
+            switch(implode($this->cardTypeToContentType(array($card->type)))) {
+                case ('file'):
+                    $card->load('files');
+                    if ($card->files) File::whereIn('id', $card->files->pluck('id'))->delete();
+                    break;
+                case ('todo'):
+                    $card->load('todos');
+                    if ($card->todos) Todo::whereIn('id', $card->todos->pluck('id'))->delete();
+                    break;
+                case ('url'):
+                    $card->load('urls');
+                    if ($card->urls) Url::whereIn('id', $card->urls->pluck('id'))->delete();
+                    break;
+                case ('embed'):
+                    $card->load('embeds');
+                    if ($card->embeds) Embed::whereIn('id', $card->embeds->pluck('id'))->delete();
+                    break;
+                case ('text'):
+                    $card->load('texts');
+                    if ($card->texts) Text::whereIn('id', $card->texts->pluck('id'))->delete();
+                    break;
+                case ('whiteboard'):
+                    $card->load('whiteboards');
+                    if ($card->whiteboards) Whiteboard::whereIn('id', $card->whiteboards->pluck('id'))->delete();
+                    break;
+            }
+            // $card->contents()->delete(); // card_content pivot
+            
+            // $card->load('stacks')->with('cards');
+            $card->delete(); // including card_stack pivot
+        }
+    }
+
     public function cardAssignInterpreter($extension)
     {
 

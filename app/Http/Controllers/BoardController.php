@@ -17,9 +17,16 @@ use Illuminate\Support\Arr;
 use App\Subdomain;
 
 
+use App\Traits\CardTraits;
+
+
+
 
 class BoardController extends Controller
 {
+
+    use CardTraits;
+
     /**
      * Display a listing of the resource.
      *
@@ -234,12 +241,24 @@ class BoardController extends Controller
         $boards = $request->user()->boards;
         // return response()->json($boards);
         
-        if ($boards->contains($board)) {
-            $board->delete();
-            return null;
+        if (!$boards->contains($board)) {
+            return $this->boardNoPermissionError();
         } else {
-            $this->boardNoPermissionError();
         }
+
+        $this->cardsDelete($board->cards);
+
+        $stack = $board->stacks[0];
+        $stackBoards = $stack->boards;
+        $boardPos = $stackBoards->find($board)->pivot->position;
+        $boardsAboveIds = $stackBoards->filter(function ($b) use ($boardPos) {
+            return $b->pivot->position > $boardPos;
+        })->pluck('id');
+        $stack->boards()->whereIn('board_id', $boardsAboveIds)->decrement('position');
+
+        $board->delete();
+
+        
     }
 
     public function validateBoard() {
