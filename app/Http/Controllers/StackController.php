@@ -51,7 +51,7 @@ class StackController extends Controller
         
         $stack->boards()->attach($newBoard, ['position' => $offset]);
 
-        return new StackResource($stack);
+        return new StackResource($stack->load('boards'));
     }
 
     /**
