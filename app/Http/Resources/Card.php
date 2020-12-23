@@ -36,56 +36,15 @@ class Card extends JsonResource
         return [
             'info' => [
                 'id' => $this->id,
-                // 'stackId' => $this->whenPivotLoaded('card_stack', function () {
-                //     return $this->stacks()->pluck('id');
-                // }),            
                 'title' => $this->title,            
-                'signed_by' => [
-                    'name' => $this->user->name,
-                    'id' => $this->user_id
-                ],
-
                 'type' => $this->type,
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at,
-                // 'stacks' => $this->whenLoaded('stacks'),
                 'stacks' => $this->when($this->relationLoaded('stacks'), function () {
                                 return $this->stacks->pluck('id');
                             }),
             ],
 
-            // 'content' => new ContentCollection($this->contents),
-            // 'content' => $this->when(($request->queryMode == 'deep'), function () {
-            //     return ContentResource::collection($this->content());
-            // })
-            // 'content' => $this->when(($request->queryMode == 'deep'), function () {
-            //                 switch($this->cardContentType('image')) {
-            //                     case('file'):
-            //                         return FileResource::collection($this->files); 
-            //                     }
-            //                 }),
-
-            // 'content' => FileResource::collection($this->whenLoaded('files')),
-            // 'content' => TodoResource::collection($this->whenLoaded('todos')),
-            
-
-            'display' => [
-                'program' => $this->program,
-                // 'position' => $this->pivot->position,
-                'position' => $this->when($this->pivot, function () {
-                    return $this->pivot->position;
-                }),
-                'open' => $this->when($this->pivot, function () {
-                    return $this->pivot->open;
-                }),
-                // 'dimensions' => [
-                //     'x' => $this->x,
-                //     'y' => $this->y,
-                //     'width' => $this->width,
-                //     'height' => $this->height,
-                // ],
-            ],
-                
             'content' => $this->cardGetContentResource($this->type),
             
             'settings' => $this->settings,
