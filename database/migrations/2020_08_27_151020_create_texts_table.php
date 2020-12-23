@@ -16,7 +16,7 @@ class CreateTextsTable extends Migration
         Schema::create('texts', function (Blueprint $table) {
             $table->id();
             
-            $table->text('text')->nullable();
+            $table->text('longText')->nullable();
 
             $table->timestamps();
         });
